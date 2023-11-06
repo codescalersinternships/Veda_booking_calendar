@@ -1,4 +1,4 @@
-import { EventDetails } from '@/utils/types';
+import { EventDetails, BoatObject, BookingStatus, BookingStatusColor } from '@/utils/types';
 import { EventApi } from '@fullcalendar/core';
 import { handelDates } from '@/utils/helpers';
 
@@ -13,6 +13,19 @@ export const eventReserved = (event: EventDetails): EventApi | null => {
 
   const id = 'randomUUID()';
   if (event.calendar) {
+    const boat: BoatObject = {
+      status: BookingStatus.Request,
+      color: BookingStatusColor.Request,
+      start: dates.start,
+      end: dates.end,
+      startStr: dates.startStr,
+      endStr: dates.endStr,
+      title: event.boat.title,
+      id: id,
+    };
+
+    event.boat = boat;
+
     return event.calendar.addEvent({
       id: id,
       title: event.boat?.title,

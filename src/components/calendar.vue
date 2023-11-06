@@ -10,7 +10,7 @@ import useEvents from '@/composables/use_events';
 import { watch } from 'vue';
 import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
 import reserveBoatComponent from '@/components/boats/reserve_boat.vue';
-import { EventDetails, reserveBoatInitializer } from '@/utils/types';
+import { BoatObject, EventDetails, reserveBoatInitializer } from '@/utils/types';
 import { eventReserved } from '@/utils/book_boat';
 import { handelDates } from '@/utils/helpers';
 
@@ -19,15 +19,21 @@ const { getEvents, createEvent, updateEvent, deleteEvent } = useEvents();
 const id = ref<number>(1);
 const displayeViewBoat = ref<boolean>(false);
 const displayeReserveBoat = ref<boolean>(false);
-const viewBoat = ref<EventInput>({});
+const boatIntity = ref<BoatObject>({});
 
 const createNewEvent = (eventInputs: EventInput) => createEvent(eventInputs);
 const updateExactingEvent = (eventInputs: EventInput, id: number) => updateEvent(eventInputs, id);
 const deleteExactingEvent = (eventID: number) => deleteEvent(eventID);
 
 const onClick = (arg: EventClickArg) => {
-  const dates = handelDates({ end: arg.event.end!, start: arg.event.start!, endStr: arg.event.endStr, startStr: arg.event.startStr, cut: true });
-  viewBoat.value = {
+  const dates = handelDates({
+    end: arg.event.end!,
+    start: arg.event.start!,
+    endStr: arg.event.endStr,
+    startStr: arg.event.startStr,
+    cut: true,
+  });
+  boatIntity.value = {
     title: arg.event.title,
     id: arg.event.id,
     start: dates.start || new Date(),
@@ -101,7 +107,7 @@ watch(getEvents, () => {
     <view-boat-details-component
       @close-dialog="displayeViewBoat = false"
       :modelValue="displayeViewBoat"
-      :boat="viewBoat"
+      :boat="boatIntity"
     />
 
     <!-- reserve new boat -->

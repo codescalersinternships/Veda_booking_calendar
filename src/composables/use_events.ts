@@ -1,3 +1,4 @@
+import { BoatObject } from '@/utils/types';
 import { ref, onMounted } from 'vue';
 import BoatsProvider from '@/api/boats';
 import { EventInput } from '@fullcalendar/core';
@@ -12,11 +13,11 @@ export default function useEvents() {
   };
 
   const createEvent = async (event: EventInput) => {
-    return await boats.postBoat(event);
+    return await boats.postBoat(event as BoatObject);
   };
 
   const updateEvent = async (event: EventInput, eventID: number) => {
-    return await boats.updateBoat(event, eventID);
+    return await boats.updateBoat(event as BoatObject, eventID);
   };
 
   const getEvent = async (eventID: number) => {

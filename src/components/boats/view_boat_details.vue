@@ -16,7 +16,6 @@ const props = defineProps({
     required: true,
   },
 });
-
 </script>
 
 <template>
@@ -26,7 +25,9 @@ const props = defineProps({
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card>
+      <v-card color="blue-lighten-5" class="pa-4">
+        $props.boat.status = ? {{ $props.boat.status }}
+        $props.boat.status = ? {{ $props.boat.end }}
         <v-row>
           <v-col>
             <v-text-field
