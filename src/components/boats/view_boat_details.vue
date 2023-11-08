@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { defineProps, PropType } from 'vue';
-import { BoatObject } from '@/utils/types';
+// import { BoatObject } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { defineComponent } from 'vue';
 
@@ -11,23 +11,18 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  boat: {
-    type: Object as PropType<BoatObject>,
-    required: true,
-  },
+  // boat: {
+  //   type: Object as PropType<BoatObject>,
+  //   required: true,
+  // },
 });
 </script>
 
 <template>
-  <custom-dialog
-    :title="$props.boat.title + ' ' + 'booking details'"
-    :modelValue="modelValue"
-    @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
-  >
+  <!-- :title="$props.boat.title + ' ' + 'booking details'" -->
+  <custom-dialog title="" :modelValue="modelValue" @close-dialog="(closed: boolean) => emit('close-dialog', closed)">
     <template #body>
       <v-card color="blue-lighten-5" class="pa-4">
-        $props.boat.status = ? {{ $props.boat.status }}
-        $props.boat.status = ? {{ $props.boat.end }}
         <v-row>
           <v-col>
             <v-text-field
@@ -36,19 +31,13 @@ const props = defineProps({
               hide-details
               append-icon="mdi-calendar"
               :disabled="true"
-              v-model="$props.boat.startStr"
               label="From"
             />
+            <!-- v-model="$props.boat.startStr" -->
           </v-col>
           <v-col>
-            <v-text-field
-              variant="outlined"
-              hide-details
-              append-icon="mdi-calendar"
-              :disabled="true"
-              v-model="$props.boat.endStr"
-              label="To"
-            />
+            <v-text-field variant="outlined" hide-details append-icon="mdi-calendar" :disabled="true" label="To" />
+            <!-- v-model="$props.boat.endStr" -->
           </v-col>
         </v-row>
       </v-card>

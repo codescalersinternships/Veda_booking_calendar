@@ -1,64 +1,57 @@
 <script lang="ts" setup>
 import { defineProps, PropType, defineComponent, ref } from 'vue';
-import { BoatNames, EventDetails } from '@/utils/types';
+import { BoatApiData, RequestAPIData } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
+import { boats } from '@/api/dummy_data';
 
-const emit = defineEmits(['close-dialog', 'event-reserved']);
+const emit = defineEmits(['close-dialog', 'update:request', 'update:select-boat']);
 
 const props = defineProps({
-  modelValue: {
+  isOpen: {
     type: Boolean,
     required: true,
   },
-  boat: {
-    type: Object as PropType<EventDetails>,
+  request: {
+    type: Object as PropType<RequestAPIData>,
     required: true,
   },
-  enableCalendar: {
-    type: Boolean,
+  selectedboat: {
+    type: Object as PropType<BoatApiData>,
     required: false,
   },
 });
 
-const boats: string[] = [BoatNames.Veda1, BoatNames.Veda2, BoatNames.Veda3, BoatNames.Veda4];
 const isLoadingCheckAvilable = ref<boolean>(false);
-const availableMessage = ref<string>('');
-const isNotAvailableMessage = ref<string>('');
-
 const checkAvailability = (selectedItem: string) => {
-  availableMessage.value = '';
-  isNotAvailableMessage.value = '';
-
+  emit('update:select-boat', selectedItem);
   isLoadingCheckAvilable.value = true;
-
   setTimeout(() => {
-    availableMessage.value = `${selectedItem} is available.`;
-    isNotAvailableMessage.value = `${selectedItem} is not available.`;
     isLoadingCheckAvilable.value = false;
   }, 2000);
 };
 
+// const boats: string[] = [BoatNames.Veda1, BoatNames.Veda2, BoatNames.Veda3, BoatNames.Veda4];
+
 const isBookButtonDisabled = () => {
-  return props.boat.boat.title === undefined || props.boat.boat.title.length === 0 || isLoadingCheckAvilable.value;
+  return (
+    props.request.boat.title === undefined ||
+    props.request.boat.title.length === 0 ||
+    isLoadingCheckAvilable.value ||
+    !props.request.boat.isAvailable
+  );
 };
 </script>
 
 <template>
   <custom-dialog
-    :title="'Book a boat'"
-    :modelValue="modelValue"
+    :title="`Booking ${request.boat.title}`"
+    :modelValue="isOpen"
+    :header-color="request.boat.color"
     width="600"
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card color="blue-lighten-5" class="pa-4">
-        <div class="text-start mb-4">
-          <small v-if="$props.enableCalendar">
-            Please ensure you select valid dates. You can either manually input the dates or click on the start date in
-            the calendar and drag to the end date for a quicker selection.
-          </small>
-        </div>
-
+      <v-card elevation="0" color="blue-lighten-5" class="pa-4">
         <v-row>
           <v-col>
             <v-text-field
@@ -66,18 +59,19 @@ const isBookButtonDisabled = () => {
               variant="outlined"
               hide-details
               append-icon="mdi-calendar"
-              :disabled="!$props.enableCalendar"
-              v-model="$props.boat.startStr"
               label="From"
+              :disabled="true"
+              v-model="$props.request.startStr"
             />
           </v-col>
+
           <v-col>
             <v-text-field
+              :disabled="true"
+              v-model="$props.request.endStr"
               variant="outlined"
               hide-details
               append-icon="mdi-calendar"
-              :disabled="!$props.enableCalendar"
-              v-model="$props.boat.endStr"
               label="To"
             />
           </v-col>
@@ -89,30 +83,39 @@ const isBookButtonDisabled = () => {
         variant="outlined"
         hide-details
         append-icon="mdi-ferry"
-        v-model="$props.boat.boat.title"
         label="Boat"
         :items="boats"
         @update:model-value="checkAvailability"
         :disabled="isLoadingCheckAvilable"
+        :loading="isLoadingCheckAvilable"
+        :messages="'This is a meesage'"
+        :item-color="request.boat.color"
+        :base-color="request.boat.color"
+        :color="request.boat.color"
       />
 
-      <div v-if="isLoadingCheckAvilable" class="check-available pt-3 d-flex justify-space-between align-center">
-        <small>
-          <strong>Checking the availability of the {{ $props.boat.boat.title?.toLocaleUpperCase() }} boat.</strong>
+      <div v-if="isLoadingCheckAvilable" class="check-available pt-1 d-flex justify-space-between align-center">
+        <small class="text-grey-darken-3 ml-1 mt-0 pt-0">
+          Checking the availability of the {{ $props.request.boat.title?.toLocaleUpperCase() }} boat...
         </small>
-        <v-progress-circular color="blue-lighten-3" indeterminate></v-progress-circular>
       </div>
 
-      <div v-if="availableMessage.length" class="check-available pt-3 d-flex justify-space-between align-center">
+      <div
+        v-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && request.boat.isAvailable"
+        class="check-available pt-1 d-flex justify-space-between align-center"
+      >
         <small>
-          <strong class="text-green-lighten-2">{{ availableMessage }}</strong>
+          <strong class="text-green-darken-1 ml-1 mt-0 pt-0"> {{ $props.request.boat.title }} is available. </strong>
         </small>
-        <v-icon icon="mdi-checkbox-marked-circle-outline" color="green-lighten-3" />
+        <v-icon icon="mdi-checkbox-marked-circle-outline" color="green-lighten-1" />
       </div>
 
-      <div v-if="isNotAvailableMessage.length" class="check-available pt-3 d-flex justify-space-between align-center">
+      <div
+        v-else-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && !request.boat.isAvailable"
+        class="check-available pt-1 d-flex justify-space-between align-center"
+      >
         <small>
-          <strong class="text-red-lighten-2">{{ isNotAvailableMessage }}</strong>
+          <strong class="text-red-lighten-2 ml-1 mt-0 pt-0">{{ $props.request.boat.title }} is not available.</strong>
         </small>
         <v-icon icon="mdi-close-circle-outline" color="red-lighten-3" />
       </div>
@@ -120,12 +123,12 @@ const isBookButtonDisabled = () => {
 
     <template #btn-action>
       <v-btn
+        :disabled="isBookButtonDisabled()"
         text="Book"
         :loading="isLoadingCheckAvilable"
-        :disabled="isBookButtonDisabled()"
-        variant="tonal"
-        color="primary"
-        @click="emit('event-reserved', boat)"
+        variant="outlined"
+        :color="request.boat.color"
+        @click="emit('update:request', request)"
       ></v-btn>
     </template>
   </custom-dialog>

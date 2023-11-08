@@ -1,24 +1,25 @@
-import { BoatObject } from '@/utils/types';
+import { boats } from '@/api/dummy_data';
+import { BoatApiData } from '@/utils/types';
 
 export default class BoatsProvider {
-  async postBoat(data: BoatObject): Promise<BoatObject> {
+  async post(data: BoatApiData): Promise<BoatApiData> {
     console.log('data: ', data);
     return data;
   }
 
-  async getBoats(): Promise<BoatObject[]> {
-    return [];
+  async all(): Promise<BoatApiData[]> {
+    return boats;
   }
 
-  async getBoat(id: number) {
+  async get(id: number) {
     console.log('id: ', id);
   }
 
-  async deleteBoat(id: number) {
+  async delete(id: number) {
     console.log('id: ', id);
   }
 
-  async updateBoat(data: BoatObject, id: number): Promise<BoatObject> {
+  async update(data: BoatApiData, id: number): Promise<BoatApiData> {
     console.log('Data, ', data, 'Id, ', id);
     return data;
   }

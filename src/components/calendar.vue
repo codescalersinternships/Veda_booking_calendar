@@ -5,67 +5,84 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import { CalendarOptions, DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
-import { reactive, ref } from 'vue';
-import useEvents from '@/composables/use_events';
-import { watch } from 'vue';
-import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
+import { onMounted, reactive, ref, watch } from 'vue';
+// import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
 import reserveBoatComponent from '@/components/boats/reserve_boat.vue';
-import { BoatObject, EventDetails, reserveBoatInitializer } from '@/utils/types';
-import { eventReserved } from '@/utils/book_boat';
+import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
 import { handelDates } from '@/utils/helpers';
+import BoatsProvider from '@/api/boats';
+import RequestBoatAPIProvider from '@/api/request';
+import { requestData, boatData } from '@/api/dummy_data';
 
-const { getEvents, createEvent, updateEvent, deleteEvent } = useEvents();
+const boatAPIProvider = new BoatsProvider();
+const requestAPIProvider = new RequestBoatAPIProvider();
 
-const id = ref<number>(1);
-const displayeViewBoat = ref<boolean>(false);
-const displayeReserveBoat = ref<boolean>(false);
-const boatIntity = ref<BoatObject>({});
+const isLoading = ref<boolean>(false);
+const isPostRequest = ref<boolean>(false);
 
-const createNewEvent = (eventInputs: EventInput) => createEvent(eventInputs);
-const updateExactingEvent = (eventInputs: EventInput, id: number) => updateEvent(eventInputs, id);
-const deleteExactingEvent = (eventID: number) => deleteEvent(eventID);
+const request = ref<RequestAPIData>(requestData);
+const boat = ref<BoatApiData>(boatData);
+
+const requests = ref<RequestAPIData[]>([]);
+const boats = ref<BoatApiData[]>([]);
+
+// Load the requests and boat from the server and display them in the calendar.
+onMounted(async () => {
+  isLoading.value = true;
+  const loadRequests = await requestAPIProvider.all();
+  const loadBoats = await boatAPIProvider.all();
+  requests.value = loadRequests;
+  boats.value = loadBoats;
+
+  if (options.events) {
+    for (const _request of requests.value) {
+      options.events.push({
+        id: _request.id,
+        title: _request.boat.title,
+        start: _request.start,
+        end: _request.end,
+        startStr: _request.startStr,
+        endStr: _request.endStr,
+        color: _request.boat.color,
+        boat: _request.boat,
+      });
+    }
+  }
+  setTimeout(() => {
+    isLoading.value = false;
+  }, 2000);
+});
 
 const onClick = (arg: EventClickArg) => {
+  console.log('Clicked...');
+
   const dates = handelDates({
-    end: arg.event.end!,
-    start: arg.event.start!,
+    end: arg.event.end || new Date(),
+    start: arg.event.start || new Date(),
     endStr: arg.event.endStr,
     startStr: arg.event.startStr,
     cut: true,
   });
-  boatIntity.value = {
-    title: arg.event.title,
-    id: arg.event.id,
-    start: dates.start || new Date(),
-    end: dates.end || new Date(),
-    endStr: dates.endStr,
-    startStr: dates.startStr,
-  };
-  displayeViewBoat.value = true;
-
-  // if (arg.event) {
-  //   arg.event.remove();
-  // }
 };
 
-const onSelect = (arg: DateSelectArg) => {
-  id.value += 1;
+const onSelect = async (arg: DateSelectArg) => {
   const calendar = arg.view.calendar;
   const dates = handelDates({ end: arg.end, start: arg.start, endStr: arg.endStr, startStr: arg.startStr, cut: true });
-  const date = new Date();
-  const boatDetails: EventDetails = {
-    start: dates.start || date,
-    end: dates.end || date,
-    startStr: dates.startStr || '',
-    endStr: dates.endStr || '',
+
+  const _request: RequestAPIData = {
+    id: requests.value.length,
+    requestStatusColor: BookingStatusColor.NotSet,
+    status: BookingStatus.NotSet,
+    start: dates.start,
+    end: dates.end,
+    startStr: dates.startStr,
+    endStr: dates.endStr,
+    boat: boatData,
     calendar: calendar,
-    boat: {},
   };
 
-  reserveBoatInitializer.value = boatDetails;
-  displayeReserveBoat.value = true;
-
-  calendar.unselect();
+  request.value = _request;
+  isPostRequest.value = true;
 };
 
 const options = reactive<CalendarOptions>({
@@ -80,51 +97,93 @@ const options = reactive<CalendarOptions>({
   selectable: true,
   weekends: true,
   select: onSelect,
-  eventBackgroundColor: 'black',
   eventClick: onClick,
   events: [],
-  eventAdd: args => createNewEvent(args),
-  eventChange: args => updateExactingEvent(args, +args.event.id),
-  eventRemove: args => deleteExactingEvent(+args.event.id),
 });
 
-options.events = getEvents.value;
+const onSelectBoat = (boatName: string) => {
+  const thisBoat = boats.value.filter(boat => boat.title === boatName);
+  request.value.boat = thisBoat[0];
+  boat.value = request.value.boat;
+};
 
-watch(getEvents, () => {
-  options.events = getEvents.value;
-});
+const updateRequest = async (_request: RequestAPIData) => {
+  _request.status = BookingStatus.Request;
+  _request.requestStatusColor = BookingStatusColor.Request;
+
+  request.value = _request;
+  requestAPIProvider.post(_request);
+
+  if (request.value.calendar) {
+    request.value.calendar.addEvent(request);
+    isPostRequest.value = false;
+    request.value.calendar.unselect();
+  }
+};
+
+const resetRequest = () => {
+  request.value = requestData;
+  boat.value = boatData;
+};
+
+watch(
+  requests,
+  () => {
+    if (options.events && request.value.calendar) {
+      const event = {
+        title: request.value.boat.title,
+        color: request.value.boat.color,
+        start: request.value.start,
+        startStr: request.value.startStr,
+        endStr: request.value.endStr,
+        end: request.value.end,
+        backgroundColor: request.value.boat.color,
+        boat: request.value.boat,
+        id: request.value.id,
+        allDay: true,
+      };
+      request.value.calendar.addEvent(event as unknown as EventInput);
+      options.events = [...options.events, event];
+      resetRequest();
+    }
+  },
+  { deep: true },
+);
 </script>
 
 <template>
-  <v-container>
-    <FullCalendar :options="options">
-      <template v-slot:eventContent="arg">
-        <b>{{ arg.event.title }}</b>
-      </template>
-    </FullCalendar>
+  <v-container class="fill-height">
+    <div class="d-flex justify-center align-center w-100" v-if="isLoading">
+      <v-progress-circular color="primary" indeterminate :size="160" :width="3">Loading events...</v-progress-circular>
+    </div>
+    <div class="w-100" v-else>
+      <FullCalendar :options="options">
+        <template v-slot:eventContent="arg">
+          <b>{{ arg.event.title }}</b>
+        </template>
+      </FullCalendar>
+    </div>
 
     <!-- Boat details -->
-    <view-boat-details-component
-      @close-dialog="displayeViewBoat = false"
-      :modelValue="displayeViewBoat"
-      :boat="boatIntity"
-    />
+    <!-- :boat="" -->
+    <!-- <view-boat-details-component @close-dialog="displayeViewBoat = false" :modelValue="displayeViewBoat" /> -->
+    <!-- :boat="boatIntity" -->
 
     <!-- reserve new boat -->
     <reserve-boat-component
-      @close-dialog="displayeReserveBoat = false"
-      :modelValue="displayeReserveBoat"
-      :boat="reserveBoatInitializer"
-      @event-reserved="(event: EventDetails) => {
-        eventReserved(event)
-        displayeReserveBoat = false
-      }"
+      @update:select-boat="onSelectBoat"
+      @close-dialog="isPostRequest = false"
+      @update:request="updateRequest"
+      :is-open="isPostRequest"
+      :request="request"
+      :selectedboat="boat"
     />
   </v-container>
 </template>
 
 <script lang="ts">
 export default {
-  components: { viewBoatDetailsComponent, reserveBoatComponent },
+  // viewBoatDetailsComponent,
+  components: { reserveBoatComponent },
 };
 </script>

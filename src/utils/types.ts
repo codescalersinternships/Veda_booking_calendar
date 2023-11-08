@@ -1,24 +1,23 @@
-import { CalendarApi, EventInput } from '@fullcalendar/core';
-import { ref } from 'vue';
+import { CalendarApi } from '@fullcalendar/core';
 
-const today = new Date();
-const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-
-export type BoatObject = EventInput & {
-  color?: BookingStatusColor;
-  status?: BookingStatus;
-  endStr?: string;
-  startStr?: string;
-  id?: string;
+export type BoatApiData = {
+  id: number;
+  title: BoatNames;
+  description?: string;
+  color: BoatColor;
+  isAvailable: boolean;
 };
 
-export type EventDetails = {
-  start: Date;
-  startStr: string;
+export type RequestAPIData = {
+  id: number;
+  boat: BoatApiData;
   end: Date;
   endStr: string;
-  boat: BoatObject;
+  start: Date;
+  startStr: string;
   calendar?: CalendarApi;
+  status: BookingStatus;
+  requestStatusColor: BookingStatusColor;
 };
 
 export enum BoatNames {
@@ -28,31 +27,32 @@ export enum BoatNames {
   Veda4 = 'Veda 4',
 }
 
+export enum BoatColor {
+  Veda1 = '#4A148C',
+  Veda2 = '#3E2723',
+  Veda3 = '#00897B',
+  Veda4 = '#303F9F',
+}
+
 export enum BookingStatus {
+  NotSet = 'no status',
   Tentative = 'Tentative',
   Request = 'Request',
   deposit = 'Confirmed with deposit',
 }
 
 export enum BookingStatusColor {
-  Tentative = 'orange',
-  Request = 'pink',
-  deposit = 'green',
+  NotSet = '#212121',
+  Tentative = '#BF360C',
+  Request = '#AD1457',
+  deposit = '#66BB6A',
 }
 
-export const reserveBoatInitializer = ref<EventDetails>({
-  start: today,
-  startStr: todayStr,
-  end: today,
-  endStr: todayStr,
-  boat: {},
-});
-
 export type CalendarDates = {
-  start?: Date;
-  startStr?: string;
-  end?: Date;
-  endStr?: string;
+  start: Date;
+  startStr: string;
+  end: Date;
+  endStr: string;
   cut?: boolean;
   add?: boolean;
 };
