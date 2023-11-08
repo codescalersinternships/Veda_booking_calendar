@@ -6,19 +6,21 @@ import listPlugin from '@fullcalendar/list';
 import { CalendarOptions, DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import { onMounted, reactive, ref, watch } from 'vue';
-// import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
+import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
 import reserveBoatComponent from '@/components/boats/reserve_boat.vue';
 import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
 import { handelDates } from '@/utils/helpers';
 import BoatsProvider from '@/api/boats';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
+import { capitalize } from 'vue';
 
 const boatAPIProvider = new BoatsProvider();
 const requestAPIProvider = new RequestBoatAPIProvider();
 
 const isLoading = ref<boolean>(false);
 const isPostRequest = ref<boolean>(false);
+const isViewRequest = ref<boolean>(false);
 
 const request = ref<RequestAPIData>(requestData);
 const boat = ref<BoatApiData>(boatData);
@@ -46,7 +48,7 @@ onMounted(async () => {
 
       options.events.push({
         id: _request.id,
-        title: _request.boat.title,
+        title: normalizeRequestTitle(_request),
         start: dates.start,
         end: dates.end,
         startStr: dates.startStr,
@@ -56,21 +58,13 @@ onMounted(async () => {
       });
     }
   }
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 2000);
+  isLoading.value = false;
 });
 
-const onClick = (arg: EventClickArg) => {
-  console.log('Clicked...');
-
-  const dates = handelDates({
-    end: arg.event.end || new Date(),
-    start: arg.event.start || new Date(),
-    endStr: arg.event.endStr,
-    startStr: arg.event.startStr,
-    cut: true,
-  });
+const onClick = async (arg: EventClickArg) => {
+  const _request = await requestAPIProvider.get(+arg.event.id);
+  request.value = _request;
+  isViewRequest.value = true;
 };
 
 const onSelect = async (arg: DateSelectArg) => {
@@ -134,6 +128,10 @@ const resetRequest = () => {
   boat.value = boatData;
 };
 
+const normalizeRequestTitle = (request: RequestAPIData) => {
+  return `${capitalize(request.boat.title)} | ${capitalize(request.status)}`;
+};
+
 watch(
   requests,
   () => {
@@ -145,8 +143,9 @@ watch(
         startStr: request.value.startStr,
         add: true,
       });
+
       const event = {
-        title: request.value.boat.title,
+        title: normalizeRequestTitle(request.value),
         color: request.value.boat.color,
         start: dates.start,
         startStr: dates.startStr,
@@ -157,6 +156,7 @@ watch(
         id: request.value.id,
         allDay: true,
       };
+
       request.value.calendar.addEvent(event as unknown as EventInput);
       options.events = [...options.events, event];
       resetRequest();
@@ -180,9 +180,7 @@ watch(
     </div>
 
     <!-- Boat details -->
-    <!-- :boat="" -->
-    <!-- <view-boat-details-component @close-dialog="displayeViewBoat = false" :modelValue="displayeViewBoat" /> -->
-    <!-- :boat="boatIntity" -->
+    <view-boat-details-component @close-dialog="isViewRequest = false" :is-open="isViewRequest" :request="request" />
 
     <!-- reserve new boat -->
     <reserve-boat-component

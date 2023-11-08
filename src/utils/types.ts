@@ -37,7 +37,7 @@ export enum BoatColor {
 export enum BookingStatus {
   NotSet = 'no status',
   Tentative = 'Tentative',
-  Request = 'Request',
+  Request = 'Requested',
   deposit = 'Confirmed with deposit',
 }
 
