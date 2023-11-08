@@ -36,13 +36,21 @@ onMounted(async () => {
 
   if (options.events) {
     for (const _request of requests.value) {
+      const dates = handelDates({
+        end: _request.end,
+        start: _request.start,
+        endStr: _request.endStr,
+        startStr: _request.startStr,
+        add: true,
+      });
+
       options.events.push({
         id: _request.id,
         title: _request.boat.title,
-        start: _request.start,
-        end: _request.end,
-        startStr: _request.startStr,
-        endStr: _request.endStr,
+        start: dates.start,
+        end: dates.end,
+        startStr: dates.startStr,
+        endStr: dates.endStr,
         color: _request.boat.color,
         boat: _request.boat,
       });
@@ -70,7 +78,7 @@ const onSelect = async (arg: DateSelectArg) => {
   const dates = handelDates({ end: arg.end, start: arg.start, endStr: arg.endStr, startStr: arg.startStr, cut: true });
 
   const _request: RequestAPIData = {
-    id: requests.value.length,
+    id: requests.value.length + 1,
     requestStatusColor: BookingStatusColor.NotSet,
     status: BookingStatus.NotSet,
     start: dates.start,
@@ -130,13 +138,20 @@ watch(
   requests,
   () => {
     if (options.events && request.value.calendar) {
+      const dates = handelDates({
+        end: request.value.end,
+        start: request.value.start,
+        endStr: request.value.endStr,
+        startStr: request.value.startStr,
+        add: true,
+      });
       const event = {
         title: request.value.boat.title,
         color: request.value.boat.color,
-        start: request.value.start,
-        startStr: request.value.startStr,
-        endStr: request.value.endStr,
-        end: request.value.end,
+        start: dates.start,
+        startStr: dates.startStr,
+        endStr: dates.endStr,
+        end: dates.end,
         backgroundColor: request.value.boat.color,
         boat: request.value.boat,
         id: request.value.id,

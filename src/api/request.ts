@@ -3,13 +3,11 @@ import { RequestAPIData } from '@/utils/types';
 
 export default class RequestBoatAPIProvider {
   async post(_request: RequestAPIData): Promise<RequestAPIData> {
-    console.log('_request: ', _request);
     requests.value.push(_request);
     return _request;
   }
 
   async get(id: number): Promise<RequestAPIData> {
-    console.log('id: ', id);
     return requests.value.filter((request: RequestAPIData) => request.id === id)[0];
   }
 
