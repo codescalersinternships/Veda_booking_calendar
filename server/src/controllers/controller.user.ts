@@ -1,97 +1,110 @@
-import { config } from './../config/config';
 import bcrypt from 'bcrypt';
-import { db } from '../models';
 import jwt from 'jsonwebtoken';
-import { Model } from 'sequelize';
-import { SignupBody, UserApiData, ResponseType } from '../utils/types';
-import { saveUser } from '../middlewares/middleware.user';
 import { Request, Response } from 'express';
+import { config } from '../config/config';
+import { db } from '../models';
+import { saveUser } from '../middlewares/middleware.user';
+import { SignupBody, ResponseType } from '../utils/types';
 
 const User: any = db.users;
 
-// Signing a user up
-// Hashing users password before its saved to the database with bcrypt
-export const signup = async (req: Request, res: Response<ResponseType>) => {
-  try {
-    saveUser(req, res);
-    const data: SignupBody = req.body;
-    if (!data.email) {
-      return res.send({ message: 'Email is required.', status: 400 });
-    } else if (!data.password) {
-      return res.send({ message: 'Password is required.', status: 400 });
-    } else {
-      data.password = await bcrypt.hash(data.password, 10);
-      const user = await User.create(data);
+/**
+ * Controller class handling user-related operations like signup and signin.
+ */
+export class UserController {
+  /**
+   * Handles user signup.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async signup(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      saveUser(req, res);
+      const data: SignupBody = req.body;
 
-      //if user details is captured
-      //generate token with the user's id and the secretKey in the env file
-      // set cookie with the token generated
+      // Check if email and password are present in the request body
+      if (!data.email) {
+        return res.send({ message: 'Email is required.', status: 400 });
+      } else if (!data.password) {
+        return res.send({ message: 'Password is required.', status: 400 });
+      } else {
+        // Hash the password
+        data.password = await bcrypt.hash(data.password, 10);
+        const user = await User.create(data);
+
+        if (user) {
+          // Generate a JWT token
+          const token = jwt.sign({ id: user.id }, config.OTHER.JWT_SECRET_KEY, {
+            expiresIn: 1 * 24 * 60 * 60 * 1000,
+          });
+
+          // Set the JWT token as a cookie
+          res.cookie('access_token', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
+
+          // Send success response
+          return res.send({ data: user, message: 'Success registered', status: 201 });
+        } else {
+          // Send an error response if user creation fails
+          return res.send({ message: 'Details are not correct.', status: 400 });
+        }
+      }
+    } catch (error) {
+      console.log('Error while posting a new user due: ', error);
+      return res.send({ message: `Error while posting a new user due: ${error}`, status: 403 });
+    }
+  }
+
+  /**
+   * Handles user signin.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async signin(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const { email, password } = req.body;
+
+      // Find a user by their email
+      const user = await User.findOne({
+        where: {
+          email: email,
+        },
+      });
+
       if (user) {
-        const token = jwt.sign({ id: user.id }, config.OTHER.JWT_SECRET_KEY, {
-          expiresIn: 1 * 24 * 60 * 60 * 1000,
-        });
+        // Compare the provided password with the hashed password in the database
+        const isSame = await bcrypt.compare(password, user.password);
 
-        res.cookie('jwt', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-        console.log('user', JSON.stringify(user, null, 2));
-        console.log(token);
-        //send users details
-        return res.send({ data: user, message: 'Success registered', status: 201 });
+        if (isSame) {
+          // Generate a JWT token
+          const token = jwt.sign({ id: user.id }, config.OTHER.JWT_SECRET_KEY, {
+            expiresIn: 1 * 24 * 60 * 60 * 1000,
+          });
+
+          // Set the JWT token as a cookie
+          res.cookie('access_token', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
+          return res.send({ data: user, message: 'Success logged in', status: 200 });
+        } else {
+          // Send an error response if the password is incorrect
+          return res.send({ message: 'Authentication failed, The password seems to be not valid.', status: 401 });
+        }
       } else {
-        return res.send({ message: 'Details are not correct.', status: 400 });
-      }
-    }
-  } catch (error) {
-    console.log('Error while posting a new user due: ', error);
-  }
-};
-
-export const login = async (
-  req: { body: { email: any; password: any } },
-  res: {
-    cookie: (arg0: string, arg1: any, arg2: { maxAge: number; httpOnly: boolean }) => void;
-    status: (arg0: number) => {
-      (): any;
-      new (): any;
-      send: { (arg0: string | Model<UserApiData, UserApiData>): any; new (): any };
-    };
-  },
-) => {
-  try {
-    const { email, password } = req.body;
-
-    //find a user by their email
-    const user = await User.findOne({
-      where: {
-        email: email,
-      },
-    });
-
-    //if user email is found, compare password with bcrypt
-    if (user) {
-      const isSame = await bcrypt.compare(password, user.password);
-
-      //if password is the same
-      //generate token with the user's id and the secretKey in the env file
-
-      if (isSame) {
-        const token = jwt.sign({ id: user.id }, config.OTHER.JWT_SECRET_KEY, {
-          expiresIn: 1 * 24 * 60 * 60 * 1000,
+        // Send an error response if the user is not found
+        return res.send({
+          message: "Authentication failed, Couldn't find a user with the provided email.",
+          status: 401,
         });
-
-        //if password matches wit the one in the database
-        //go ahead and generate a cookie for the user
-        res.cookie('jwt', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-        console.log('user', JSON.stringify(user, null, 2));
-        console.log(token);
-        //send user data
-        return res.status(201).send(user);
-      } else {
-        return res.status(401).send('Authentication failed');
       }
-    } else {
-      return res.status(401).send('Authentication failed');
+    } catch (error) {
+      console.log(error);
+      return res.send({ message: `Error while authenticating the requested user due: ${error}`, status: 403 });
     }
-  } catch (error) {
-    console.log(error);
   }
-};
+}
