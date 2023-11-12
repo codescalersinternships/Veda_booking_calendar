@@ -56,3 +56,17 @@ export type CalendarDates = {
   cut?: boolean;
   add?: boolean;
 };
+
+type ResponseBody<T> = {};
+
+export type ResponseWrapper<T> = {
+  status?: number;
+  data?: ResponseBody<T>;
+  isError?: boolean;
+  message?: string;
+};
+
+export type UserForm = {
+  email: string;
+  password: string;
+};

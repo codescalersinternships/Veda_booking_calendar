@@ -17,6 +17,7 @@
     "@fullcalendar/timegrid": "^6.1.9",
     "@fullcalendar/vue3": "^6.1.9",
     "@mdi/font": "7.0.96",
+    "axios": "^1.6.1",
     "core-js": "^3.29.0",
     "email-validator": "^2.0.4",
     "prettier": "^2.8.7",

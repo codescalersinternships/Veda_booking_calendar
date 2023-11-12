@@ -23,11 +23,11 @@ export const defineRequestTable = (sequelize: Sequelize) => {
       },
       endStr: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       startStr: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: DataTypes.ENUM,

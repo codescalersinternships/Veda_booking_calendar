@@ -21,7 +21,8 @@
               hide-details="auto"
               :error-messages="email != undefined ? emailErrorMessage : undefined"
               :rules="[isValidEmail]"
-            ></v-text-field>
+            />
+
             <v-text-field
               :disabled="isLoadingForm"
               outline
@@ -29,9 +30,9 @@
               label="Password"
               type="password"
               v-model="password"
-            ></v-text-field>
+            />
           </v-form>
-          <v-alert v-if="isErrorResponse" variant="tonal" type="error">This is an error message.</v-alert>
+          <v-alert v-if="isErrorResponse" variant="tonal" type="error">{{ errorMessage }}</v-alert>
           <v-alert v-if="isSuccessResponse" variant="tonal" type="success">This is an error message.</v-alert>
         </v-card-text>
         <v-divider></v-divider>
@@ -61,6 +62,8 @@ import validator from 'email-validator';
 import { UserApiProvider } from '@/api/users';
 import { onMounted } from 'vue';
 import router from '@/router';
+import { AuthenticationApiProvider } from '@/api/auth';
+import { UserForm } from '@/utils/types';
 
 const user = new UserApiProvider();
 
@@ -72,6 +75,8 @@ const isLoadingForm = ref<boolean>();
 
 const isErrorResponse = ref<boolean>();
 const isSuccessResponse = ref<boolean>();
+
+const errorMessage = ref<string>();
 
 const isValidEmail = (email: string): boolean => {
   if (!validator.validate(email)) {
@@ -88,11 +93,19 @@ onMounted(() => {
   }
 });
 
-const submit = () => {
+const submit = async () => {
   isLoadingForm.value = true;
-  if (email.value) {
-    localStorage.setItem('veda_access_token', email.value);
-    router.push('/');
+  if (email.value && password.value) {
+    const auth = new AuthenticationApiProvider();
+    const userForm: UserForm = { email: email.value, password: password.value };
+    const loggedIn = await auth.login(userForm);
+    if (loggedIn.isError) {
+      isErrorResponse.value = loggedIn.isError;
+      errorMessage.value = loggedIn.message;
+      isLoadingForm.value = false;
+    }
+    // localStorage.setItem('veda_access_token', email.value);
+    // router.push('/');
   } else {
     alert('Email is undefined');
   }

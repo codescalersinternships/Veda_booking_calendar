@@ -14,7 +14,7 @@ export class RequestController {
    * @param res The HTTP response object.
    * @returns A Promise representing the HTTP response.
    */
-  static async request(
+  static async post(
     req: Request,
     res: Response<ResponseType>,
   ): Promise<Response<ResponseType<any>, Record<string, any>>> {
@@ -22,22 +22,47 @@ export class RequestController {
 
     try {
       if (!data.boat) {
-        return res.send({ message: 'Boat ID is required.', status: 400 }).status(400);
+        return res.status(400).send({ message: 'Boat ID is required.', status: 400 });
       } else if (!data.start) {
-        return res.send({ message: 'Start-Date is required.', status: 400 }).status(400);
+        return res.status(400).send({ message: 'Start-Date is required.', status: 400 });
       } else if (!data.end) {
-        return res.send({ message: 'End-Date is required.', status: 400 }).status(400);
+        return res.status(400).send({ message: 'End-Date is required.', status: 400 });
       } else {
         data.status = BookingStatus.NotSet;
         const request = await Request.create(data);
         if (request) {
-          return res.send({ data: request, message: 'Success requested.', status: 201 }).status(201);
+          return res.status(201).send({ data: request, message: 'Success requested.', status: 201 });
         }
-        return res.send({ message: `Error while posting a new request due:`, status: 400 }).status(400);
+        return res.status(400).send({ message: `Error while posting a new request due:`, status: 400 });
       }
     } catch (error) {
       console.log('Error while posting a new request due: ', error);
-      return res.send({ message: `Error while posting a new request due: ${error}`, status: 400 }).status(400);
+      return res.status(400).send({ message: `Error while posting a new request due: ${error}`, status: 400 });
+    }
+  }
+  /**
+   * Handles get request.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async get(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const request = await Request.findOne({
+        where: {
+          id: req.params.requestId,
+        },
+      });
+
+      if (request) {
+        return res.status(201).send({ data: request, message: 'Success response.', status: 201 });
+      }
+      return res.status(404).send({ message: `Record not found.`, status: 404 });
+    } catch (error) {
+      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
     }
   }
 }

@@ -14,29 +14,53 @@ export class BoatController {
    * @param res The HTTP response object.
    * @returns A Promise representing the HTTP response.
    */
-  static async create(
+  static async post(
     req: Request,
     res: Response<ResponseType>,
   ): Promise<Response<ResponseType<any>, Record<string, any>>> {
     try {
       const data: BoatBody = req.body;
-      console.log('data.isAvailable', data.isAvailable);
       if (!data.title || data.title.length === 0) {
-        return res.send({ message: 'Boat title is required.', status: 400 }).status(400);
+        return res.status(400).send({ message: 'Boat title is required.', status: 400 });
       } else if (data.isAvailable === undefined) {
-        return res.send({ message: 'Boat availability must be selected.', status: 400 }).status(400);
+        return res.status(400).send({ message: 'Boat availability must be selected.', status: 400 });
       } else {
         const request = await Boat.create(data);
         console.log('request', request);
 
         if (request) {
-          return res.send({ data: request, message: 'Success requested.', status: 201 }).status(201);
+          return res.status(201).send({ data: request, message: 'Success requested.', status: 201 });
         }
-        return res.send({ message: `Error while posting a new boat due:`, status: 400 }).status(400);
+        return res.status(400).send({ message: `Error while posting a new boat due:`, status: 400 });
       }
     } catch (error) {
       console.log('Error while posting a new boat due: ', error);
-      return res.send({ message: `Error while posting a new boat due: ${error}`, status: 400 }).status(400);
+      return res.status(400).send({ message: `Error while posting a new boat due: ${error}`, status: 400 });
+    }
+  }
+  /**
+   * Handles get boat.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async get(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const boat = await Boat.findOne({
+        where: {
+          id: req.params.boatId,
+        },
+      });
+
+      if (boat) {
+        return res.status(201).send({ data: boat, message: 'Success response.', status: 201 });
+      }
+      return res.status(404).send({ message: `Record not found.`, status: 404 });
+    } catch (error) {
+      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
     }
   }
 }
