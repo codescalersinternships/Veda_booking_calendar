@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { router } from './routes/route.user';
+import { router as userRouter } from './routes/route.user';
+import { router as requestRouter } from './routes/route.request';
+import { router as boatRouter } from './routes/route.boat';
 import { db } from './models/';
 import { config } from './config/config';
 
@@ -23,11 +25,13 @@ if (db && db.sequelize) {
 }
 
 //routes for the user API
-app.use('/api/users', router);
+app.use('/api/users', userRouter);
+app.use('/api/requests', requestRouter);
+app.use('/api/boats', boatRouter);
 
-// app.get('/', (req, res) => {
-//   res.json({ message: 'Veda Booking System API.' });
-// });
+app.get('/', (req, res) => {
+  res.json({ message: 'Veda Booking System API.' });
+});
 
 app.listen(config.SERVER.PORT, () => {
   console.log(`Server is running on port ${config.SERVER.PORT}.`);

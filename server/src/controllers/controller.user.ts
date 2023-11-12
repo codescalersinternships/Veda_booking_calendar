@@ -28,9 +28,9 @@ export class UserController {
 
       // Check if email and password are present in the request body
       if (!data.email) {
-        return res.send({ message: 'Email is required.', status: 400 });
+        return res.send({ message: 'Email is required.', status: 400 }).status(400);
       } else if (!data.password) {
-        return res.send({ message: 'Password is required.', status: 400 });
+        return res.send({ message: 'Password is required.', status: 400 }).status(400);
       } else {
         // Hash the password
         data.password = await bcrypt.hash(data.password, 10);
@@ -46,15 +46,15 @@ export class UserController {
           res.cookie('access_token', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
 
           // Send success response
-          return res.send({ data: user, message: 'Success registered', status: 201 });
+          return res.send({ data: user, message: 'Success registered', status: 201 }).status(201);
         } else {
           // Send an error response if user creation fails
-          return res.send({ message: 'Details are not correct.', status: 400 });
+          return res.send({ message: 'Details are not correct.', status: 400 }).status(400);
         }
       }
     } catch (error) {
       console.log('Error while posting a new user due: ', error);
-      return res.send({ message: `Error while posting a new user due: ${error}`, status: 403 });
+      return res.send({ message: `Error while posting a new user due: ${error}`, status: 403 }).status(403);
     }
   }
 

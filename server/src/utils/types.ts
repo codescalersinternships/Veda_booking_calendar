@@ -1,3 +1,5 @@
+import { Sequelize, ModelStatic, Model } from 'sequelize';
+
 export type UserApiData = SignupBody & {
   id: number;
   role: UserRole;
@@ -18,9 +20,29 @@ export type SignupBody = {
   password: string;
 };
 
+export type RequestBody = {
+  boat: number;
+  start: Date;
+  end: Date;
+  status: BookingStatus;
+};
+
+export type BoatBody = {
+  title: string;
+  description?: string;
+  isAvailable: boolean;
+};
+
 export enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
+}
+
+export enum BoatNames {
+  Veda1 = 'veda_1',
+  Veda2 = 'veda_2',
+  Veda3 = 'veda_3',
+  Veda4 = 'veda_4',
 }
 
 export type VedaServerConfig = {
@@ -54,3 +76,17 @@ export type VedaDatabaseConfig = {
     idle: number;
   };
 };
+
+export type Database = {
+  sequelize?: Sequelize;
+  users?: ModelStatic<Model<any, any>>;
+  requests?: ModelStatic<Model<any, any>>;
+  boats?: ModelStatic<Model<any, any>>;
+};
+
+export enum BookingStatus {
+  NotSet = 'no_status',
+  Tentative = 'tentative',
+  Request = 'requested',
+  deposit = 'confirmed_with_deposit',
+}

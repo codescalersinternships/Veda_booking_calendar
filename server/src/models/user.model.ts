@@ -3,7 +3,7 @@ import { UserRole } from '../utils/types';
 
 export const defineUserTable = (sequelize: Sequelize) => {
   return sequelize.define(
-    'user',
+    'users',
     {
       role: {
         type: DataTypes.ENUM,
@@ -22,6 +22,6 @@ export const defineUserTable = (sequelize: Sequelize) => {
         allowNull: false,
       },
     },
-    { timestamps: true },
+    { timestamps: true, freezeTableName: true },
   );
 };
