@@ -69,11 +69,3 @@ Linting can be performed for both the server and client using the following comm
     ```bash
     make lintclient
     ```
-
-## Server Structure
-
-The server is implemented using Node.js and Express. The main server file is `server/src/server.ts`.
-
-## Client Structure
-
-The client is implemented using Vue3, Vuetify, and Vite. The main client files are in the `client` directory.
