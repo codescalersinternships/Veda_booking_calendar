@@ -1,3 +1,22 @@
+<script setup lang="ts">
+import { UserApiProvider } from '@/api/users';
+import { onMounted, ref, defineComponent } from 'vue';
+import RegisterForm from './register_form.vue';
+
+const isAdminUser = ref<boolean>(false);
+const isLoading = ref<boolean>(false);
+const user = new UserApiProvider();
+
+onMounted(async () => {
+  isLoading.value = true;
+  if (UserApiProvider.isAuthenticated()) {
+    isAdminUser.value = await user.isAdmin();
+    console.log('isAdminUser', isAdminUser.value);
+  }
+  isLoading.value = false;
+});
+</script>
+
 <template>
   <div class="d-flex fill-height justify-center align-center w-100" v-if="isLoading">
     <v-progress-circular color="primary" indeterminate :size="160" :width="3"> Check user role... </v-progress-circular>
@@ -22,25 +41,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { UserApiProvider } from '@/api/users';
-import { onMounted, ref } from 'vue';
-import RegisterForm from './register_form.vue';
-import { defineComponent } from 'vue';
-
-const isAdminUser = ref<boolean>(false);
-const isLoading = ref<boolean>(false);
-const user = new UserApiProvider();
-
-onMounted(async () => {
-  isLoading.value = true;
-  if (user.isAuthenticated()) {
-    isAdminUser.value = await user.isAdmin();
-  }
-  isLoading.value = false;
-});
-</script>
 
 <script lang="ts">
 export default defineComponent({

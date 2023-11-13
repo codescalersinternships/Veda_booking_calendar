@@ -1,3 +1,91 @@
+<script setup lang="ts">
+import { onMounted, defineComponent, ref } from 'vue';
+import validator from 'email-validator';
+import { UserApiProvider } from '@/api/users';
+import router from '@/router';
+import { AuthenticationApiProvider } from '@/api/auth';
+import { UserLoginForm } from '@/utils/types';
+import { containsNumbers, containsSpecialChars } from '@/utils/helpers';
+
+const email = ref<string>();
+const password = ref<string>();
+
+const isLoadingForm = ref<boolean>();
+
+const isErrorResponse = ref<boolean>();
+const isSuccessResponse = ref<boolean>();
+const show = ref<boolean>();
+
+const errorMessage = ref<string>();
+const successMessage = ref<string>();
+
+const emailErrorMessage = ref<string>('');
+const isValidEmail = (email: string): boolean => {
+  if (!email || email.trim().length === 0) {
+    emailErrorMessage.value = 'The email is required.';
+    return false;
+  } else if (!validator.validate(email)) {
+    emailErrorMessage.value = 'Please make sure that you entered a valid email address.';
+    return false;
+  }
+  emailErrorMessage.value = '';
+  return true;
+};
+
+const passwordErrorMessage = ref<string>('');
+const isValidPassword = (password: string) => {
+  if (!password || password.trim().length === 0) {
+    passwordErrorMessage.value = 'The password is required.';
+    return false;
+  } else if (password.length < 5) {
+    passwordErrorMessage.value = 'The password must be at least 5 chars.';
+    return false;
+  } else if (!containsSpecialChars(password)) {
+    passwordErrorMessage.value = 'The password should contain at least one special char.';
+    return false;
+  } else if (!containsNumbers(password)) {
+    passwordErrorMessage.value = 'The password should contain at least one digit.';
+    return false;
+  }
+  passwordErrorMessage.value = '';
+  return true;
+};
+
+onMounted(async () => {
+  if (UserApiProvider.isAuthenticated()) {
+    router.push('/');
+  }
+});
+
+const submit = async () => {
+  isLoadingForm.value = true;
+  isSuccessResponse.value = false;
+  isErrorResponse.value = false;
+
+  if (!email.value) {
+    isErrorResponse.value = true;
+    errorMessage.value = 'Email is undefined';
+  } else if (!password.value) {
+    isErrorResponse.value = true;
+    errorMessage.value = 'Password is undefined';
+  } else {
+    const auth = new AuthenticationApiProvider();
+    const userForm: UserLoginForm = { email: email.value, password: password.value };
+    const loggedIn = await auth.login(userForm);
+    if (loggedIn.isError) {
+      isErrorResponse.value = loggedIn.isError;
+      errorMessage.value = loggedIn.message;
+      isLoadingForm.value = false;
+    } else {
+      isSuccessResponse.value = true;
+      successMessage.value = loggedIn.message;
+      router.push('/');
+      isLoadingForm.value = false;
+    }
+  }
+};
+</script>
+
 <template>
   <v-container class="fill-height bg-cli">
     <div class="d-flex justify-center align-center w-100">
@@ -65,96 +153,8 @@
   </v-container>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import validator from 'email-validator';
-import { UserApiProvider } from '@/api/users';
-import { onMounted } from 'vue';
-import router from '@/router';
-import { AuthenticationApiProvider } from '@/api/auth';
-import { UserLoginForm } from '@/utils/types';
-import { containsNumbers, containsSpecialChars } from '@/utils/helpers';
-
-const user = new UserApiProvider();
-
-const email = ref<string>();
-const password = ref<string>();
-
-const isLoadingForm = ref<boolean>();
-
-const isErrorResponse = ref<boolean>();
-const isSuccessResponse = ref<boolean>();
-const show = ref<boolean>();
-
-const errorMessage = ref<string>();
-const successMessage = ref<string>();
-
-const emailErrorMessage = ref<string>('');
-const isValidEmail = (email: string): boolean => {
-  if (!email || email.trim().length === 0) {
-    emailErrorMessage.value = 'The email is required.';
-    return false;
-  } else if (!validator.validate(email)) {
-    emailErrorMessage.value = 'Please make sure that you entered a valid email address.';
-    return false;
-  }
-  emailErrorMessage.value = '';
-  return true;
-};
-
-const passwordErrorMessage = ref<string>('');
-const isValidPassword = (password: string) => {
-  if (!password || password.trim().length === 0) {
-    passwordErrorMessage.value = 'The password is required.';
-    return false;
-  } else if (password.length < 5) {
-    passwordErrorMessage.value = 'The password must be at least 5 chars.';
-    return false;
-  } else if (!containsSpecialChars(password)) {
-    passwordErrorMessage.value = 'The password should contain at least one special char.';
-    return false;
-  } else if (!containsNumbers(password)) {
-    passwordErrorMessage.value = 'The password should contain at least one digit.';
-    return false;
-  }
-  passwordErrorMessage.value = '';
-  return true;
-};
-
-onMounted(async () => {
-  const isAuthenticated = await user.isAuthenticated();
-  if (isAuthenticated) {
-    router.push('/');
-  }
-});
-
-const submit = async () => {
-  isLoadingForm.value = true;
-  isSuccessResponse.value = false;
-  isErrorResponse.value = false;
-
-  if (!email.value) {
-    isErrorResponse.value = true;
-    errorMessage.value = 'Email is undefined';
-  } else if (!password.value) {
-    isErrorResponse.value = true;
-    errorMessage.value = 'Password is undefined';
-  } else {
-    const auth = new AuthenticationApiProvider();
-    const userForm: UserLoginForm = { email: email.value, password: password.value };
-    const loggedIn = await auth.login(userForm);
-    if (loggedIn.isError) {
-      isErrorResponse.value = loggedIn.isError;
-      errorMessage.value = loggedIn.message;
-      isLoadingForm.value = false;
-    } else {
-      isSuccessResponse.value = true;
-      successMessage.value = loggedIn.message;
-      router.push('/');
-      isLoadingForm.value = false;
-    }
-  }
-};
+<script lang="ts">
+export default defineComponent({});
 </script>
 
 <style>

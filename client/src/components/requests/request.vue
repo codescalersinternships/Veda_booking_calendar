@@ -6,7 +6,6 @@ import { boats } from '@/api/dummy_data';
 import { UserApiProvider } from '@/api/users';
 
 const emit = defineEmits(['close-dialog', 'update:request', 'update:select-boat']);
-const user = new UserApiProvider();
 
 const props = defineProps({
   isOpen: {
@@ -32,8 +31,6 @@ const checkAvailability = (selectedItem: string) => {
   }, 2000);
 };
 
-// const boats: string[] = [BoatNames.Veda1, BoatNames.Veda2, BoatNames.Veda3, BoatNames.Veda4];
-
 const isBookButtonDisabled = () => {
   return (
     props.request.boat.title === undefined ||
@@ -53,7 +50,7 @@ const isBookButtonDisabled = () => {
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <div v-if="user.isAuthenticated()">
+      <div v-if="UserApiProvider.isAuthenticated()">
         <v-card elevation="0" color="blue-lighten-5" class="pa-4">
           <v-row>
             <v-col>
@@ -133,7 +130,7 @@ const isBookButtonDisabled = () => {
 
     <template #btn-action>
       <v-btn
-        v-if="user.isAuthenticated()"
+        v-if="UserApiProvider.isAuthenticated()"
         :disabled="isBookButtonDisabled()"
         text="Book"
         :loading="isLoadingCheckAvilable"

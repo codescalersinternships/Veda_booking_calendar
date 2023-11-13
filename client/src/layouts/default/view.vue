@@ -6,8 +6,7 @@
 
 <script lang="ts" setup>
 import { checkRoute } from '@/utils/helpers';
-import { watch } from 'vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, defineComponent, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const isAuthRoute = ref<boolean>(false);
@@ -24,6 +23,10 @@ watch(
   },
   { deep: true },
 );
+</script>
+
+<script lang="ts">
+export default defineComponent({});
 </script>
 
 <style scoped>

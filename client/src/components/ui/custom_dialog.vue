@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { defineComponent, defineProps } from 'vue';
 
 const emit = defineEmits(['close-dialog']);
 
@@ -57,3 +57,7 @@ const closeDialog = (closed: boolean) => {
     </v-card>
   </v-dialog>
 </template>
+
+<script lang="ts">
+export default defineComponent({});
+</script>

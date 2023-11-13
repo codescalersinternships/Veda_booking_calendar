@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { defineComponent, ref } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
-import { UserApiProvider } from '@/api/users';
 import { BoatApiData } from '@/utils/types';
 import BoatsApiProvider from '@/api/boats';
 
 const emit = defineEmits(['close-dialog']);
-const user = new UserApiProvider();
 const isErrorResponse = ref<boolean>();
 const errorMessage = ref<string>();
 

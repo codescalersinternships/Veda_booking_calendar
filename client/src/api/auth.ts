@@ -44,6 +44,11 @@ export class AuthenticationApiProvider {
     }
   }
 
+  logout() {
+    sessionStorage.removeItem('vedaUserRole');
+    localStorage.removeItem('vedaAccessToken');
+  }
+
   isUser() {
     return false;
   }

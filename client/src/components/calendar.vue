@@ -2,10 +2,12 @@
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
 import { CalendarOptions, DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+
 import { onMounted, reactive, ref, watch, capitalize } from 'vue';
+
 import ViewRequest from '@/components/requests/view_request.vue';
 import NewRequest from '@/components/requests/request.vue';
 import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
@@ -231,18 +233,3 @@ export default {
   components: { NewRequest, ViewRequest },
 };
 </script>
-
-<style>
-.past-date {
-  background: #a9a9a969;
-  cursor: not-allowed;
-}
-.d-none {
-  display: none !important;
-}
-.v-main {
-  background-image: none !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-}
-</style>

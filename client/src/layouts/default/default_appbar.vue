@@ -34,8 +34,10 @@
 import router from '@/router';
 import { defineComponent, ref } from 'vue';
 import NewBoat from '@/components/boats/new_boat.vue';
+import { AuthenticationApiProvider } from '@/api/auth';
 
 const displayNewBoat = ref<boolean>(false);
+const auth = new AuthenticationApiProvider();
 
 type Route = {
   title: string;
@@ -47,7 +49,7 @@ const routes: Route[] = [
   {
     title: 'Logout',
     onClick: () => {
-      localStorage.removeItem('vedaAccessToken');
+      auth.logout();
       router.push('/login');
     },
   },

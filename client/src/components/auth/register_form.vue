@@ -1,110 +1,5 @@
-<template>
-  <v-card class="pt-6 pb-4" width="600" elevation="4" tag="section">
-    <v-card-title class="text-center pb-6">
-      <v-layout class="align-center justify-center">
-        <h3 class="headline">New User Registration</h3>
-      </v-layout>
-    </v-card-title>
-    <v-divider></v-divider>
-    <v-card-text>
-      <p class="mb-4">
-        Please take a few moments to register. You will need this information to
-        <strong class="text-info">access your account</strong> in the future.
-      </p>
-      <v-form @submit="submit" class="pb-2">
-        <v-text-field
-          :disabled="isLoadingForm"
-          outline
-          label="First Name"
-          type="text"
-          class="mb-2"
-          v-model="firstName"
-          hide-details="auto"
-          :error-messages="firstName != undefined ? fNameErrorMessage : undefined"
-          :rules="[isValidFirstName]"
-        />
-
-        <v-text-field
-          :disabled="isLoadingForm"
-          outline
-          label="Last Name"
-          type="text"
-          class="mb-2"
-          v-model="lastName"
-          hide-details="auto"
-          :error-messages="lastName != undefined ? lNameErrorMessage : undefined"
-          :rules="[isValidLastName]"
-        />
-
-        <v-text-field
-          :disabled="isLoadingForm"
-          outline
-          label="Email"
-          type="email"
-          class="mb-2"
-          v-model="email"
-          hide-details="auto"
-          :error-messages="email != undefined ? emailErrorMessage : undefined"
-          :rules="[isValidEmail]"
-        />
-
-        <v-text-field
-          :disabled="isLoadingForm"
-          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :type="show ? 'text' : 'password'"
-          @click:append-inner="show = !show"
-          outline
-          label="Password"
-          class="mb-2"
-          v-model="password"
-          hide-details="auto"
-          :error-messages="password != undefined ? passwordErrorMessage : undefined"
-          :rules="[isValidPassword]"
-        />
-
-        <v-select
-          class="mt-4"
-          variant="outlined"
-          hide-details
-          append-icon="mdi-account-question"
-          label="Boat"
-          :items="[UserRole.ADMIN, UserRole.USER]"
-          :disabled="isLoadingForm"
-          v-model="userRole"
-        />
-      </v-form>
-      <v-alert v-if="isErrorResponse" variant="tonal" type="error">{{ errorMessage }}</v-alert>
-      <v-alert v-if="isSuccessResponse" variant="tonal" type="success">{{ successMessage }}</v-alert>
-    </v-card-text>
-    <v-divider></v-divider>
-    <v-card-actions class="pa-3">
-      <v-btn
-        :disabled="isLoadingForm"
-        color="primary"
-        flat
-        style="font-size: 13px"
-        @click="() => router.push('/login')"
-      >
-        Already Registered User? Click here to login
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn
-        @click="submit"
-        :loading="isLoadingForm"
-        :disabled="emailErrorMessage.length !== 0"
-        color="primary"
-        variant="tonal"
-      >
-        <v-icon v-if="emailErrorMessage.length === 0" left>mdi-lock-open</v-icon>
-        <v-icon v-else left>mdi-lock</v-icon>
-        Register
-      </v-btn>
-    </v-card-actions>
-  </v-card>
-</template>
-
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 import validator from 'email-validator';
 import router from '@/router';
 import { AuthenticationApiProvider } from '@/api/auth';
@@ -244,6 +139,115 @@ const submit = async () => {
     }
   }
 };
+</script>
+
+<template>
+  <v-card class="pt-6 pb-4" width="600" elevation="4" tag="section">
+    <v-card-title class="text-center pb-6">
+      <v-layout class="align-center justify-center">
+        <h3 class="headline">New User Registration</h3>
+      </v-layout>
+    </v-card-title>
+    <v-divider></v-divider>
+    <v-card-text>
+      <p class="mb-4">
+        Please take a few moments to register. You will need this information to
+        <strong class="text-info">access your account</strong> in the future.
+      </p>
+      <v-form @submit="submit" class="pb-2">
+        <v-text-field
+          :disabled="isLoadingForm"
+          outline
+          label="First Name"
+          type="text"
+          class="mb-2"
+          v-model="firstName"
+          hide-details="auto"
+          :error-messages="firstName != undefined ? fNameErrorMessage : undefined"
+          :rules="[isValidFirstName]"
+        />
+
+        <v-text-field
+          :disabled="isLoadingForm"
+          outline
+          label="Last Name"
+          type="text"
+          class="mb-2"
+          v-model="lastName"
+          hide-details="auto"
+          :error-messages="lastName != undefined ? lNameErrorMessage : undefined"
+          :rules="[isValidLastName]"
+        />
+
+        <v-text-field
+          :disabled="isLoadingForm"
+          outline
+          label="Email"
+          type="email"
+          class="mb-2"
+          v-model="email"
+          hide-details="auto"
+          :error-messages="email != undefined ? emailErrorMessage : undefined"
+          :rules="[isValidEmail]"
+        />
+
+        <v-text-field
+          :disabled="isLoadingForm"
+          :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="show ? 'text' : 'password'"
+          @click:append-inner="show = !show"
+          outline
+          label="Password"
+          class="mb-2"
+          v-model="password"
+          hide-details="auto"
+          :error-messages="password != undefined ? passwordErrorMessage : undefined"
+          :rules="[isValidPassword]"
+        />
+
+        <v-select
+          class="mt-4"
+          variant="outlined"
+          hide-details
+          append-icon="mdi-account-question"
+          label="Boat"
+          :items="[UserRole.ADMIN, UserRole.USER]"
+          :disabled="isLoadingForm"
+          v-model="userRole"
+        />
+      </v-form>
+      <v-alert v-if="isErrorResponse" variant="tonal" type="error">{{ errorMessage }}</v-alert>
+      <v-alert v-if="isSuccessResponse" variant="tonal" type="success">{{ successMessage }}</v-alert>
+    </v-card-text>
+    <v-divider></v-divider>
+    <v-card-actions class="pa-3">
+      <v-btn
+        :disabled="isLoadingForm"
+        color="primary"
+        flat
+        style="font-size: 13px"
+        @click="() => router.push('/login')"
+      >
+        Already Registered User? Click here to login
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+        @click="submit"
+        :loading="isLoadingForm"
+        :disabled="emailErrorMessage.length !== 0"
+        color="primary"
+        variant="tonal"
+      >
+        <v-icon v-if="emailErrorMessage.length === 0" left>mdi-lock-open</v-icon>
+        <v-icon v-else left>mdi-lock</v-icon>
+        Register
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</template>
+
+<script lang="ts">
+export default defineComponent({});
 </script>
 
 <style>
