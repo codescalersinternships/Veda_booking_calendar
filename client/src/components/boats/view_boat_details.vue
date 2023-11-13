@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, PropType, defineComponent, capitalize } from 'vue';
+import { PropType, defineComponent, capitalize } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { RequestAPIData } from '@/utils/types';
 

@@ -19,7 +19,7 @@ export class UserController {
    * @returns A Promise representing the HTTP response.
    */
   static async signup(
-    req: Request,
+    req: Request<any>,
     res: Response<ResponseType>,
   ): Promise<Response<ResponseType<any>, Record<string, any>>> {
     try {
@@ -42,11 +42,11 @@ export class UserController {
             expiresIn: 1 * 24 * 60 * 60 * 1000,
           });
 
+          const data = { ...user.dataValues, vedaAccessToken: token };
           // Set the JWT token as a cookie
-          res.cookie('veda_access_token', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-
+          // res.cookie('vedaAccessToken', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
           // Send success response
-          return res.status(201).send({ data: user, message: 'Success registered', status: 201 });
+          return res.status(201).send({ data, message: 'Success registered', status: 201 });
         } else {
           // Send an error response if user creation fails
           return res.status(400).send({ message: 'Details are not correct.', status: 400 });
@@ -94,8 +94,9 @@ export class UserController {
             });
 
             // Set the JWT token as a cookie
-            res.cookie('veda_access_token', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
-            return res.status(200).send({ data: user, message: 'Success logged in', status: 200 });
+            // res.cookie('vedaAccessToken', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
+            const data = { ...user.dataValues, vedaAccessToken: token };
+            return res.status(200).send({ data, message: 'Success logged in', status: 200 });
           } else {
             // Send an error response if the password is incorrect
             return res

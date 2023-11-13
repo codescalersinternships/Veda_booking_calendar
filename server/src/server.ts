@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+
 import { router as authRouter } from './routes/route.auth';
 import { router as requestRouter } from './routes/route.request';
 import { router as boatRouter } from './routes/route.boat';
+import { router as userRouter } from './routes/route.user';
+
 import { db } from './models/';
 import { config } from './config/config';
 import { ResponseType } from './utils/types';
@@ -27,9 +30,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRouter);
 app.use('/api/requests', requestRouter);
 app.use('/api/boats', boatRouter);
+app.use('/api/users', userRouter);
 
 app.get('/', (req: Request, res: Response<ResponseType>) => {
-  res.json({ message: 'Veda Booking System API.', status: 200 });
+  return res.status(200).send({ message: 'Veda Booking System API.', status: 200 });
 });
 
 app.listen(config.SERVER.PORT, () => {

@@ -57,7 +57,7 @@ export type CalendarDates = {
   add?: boolean;
 };
 
-type ResponseBody<T> = {};
+type ResponseBody<T> = T;
 
 export type ResponseWrapper<T> = {
   status?: number;
@@ -66,7 +66,21 @@ export type ResponseWrapper<T> = {
   message?: string;
 };
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
 export type UserForm = {
   email: string;
   password: string;
+};
+export type UserFormResponse = {
+  createdAt: Date;
+  updatedAt: Date;
+  id: number;
+  role: UserRole;
+  email: string;
+  password: string;
+  vedaAccessToken: string;
 };

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, PropType, defineComponent, ref } from 'vue';
+import { PropType, defineComponent, ref } from 'vue';
 import { BoatApiData, RequestAPIData } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { boats } from '@/api/dummy_data';

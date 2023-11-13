@@ -33,7 +33,7 @@
             />
           </v-form>
           <v-alert v-if="isErrorResponse" variant="tonal" type="error">{{ errorMessage }}</v-alert>
-          <v-alert v-if="isSuccessResponse" variant="tonal" type="success">This is an error message.</v-alert>
+          <v-alert v-if="isSuccessResponse" variant="tonal" type="success">{{ successMessage }}</v-alert>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="pa-3">
@@ -77,6 +77,7 @@ const isErrorResponse = ref<boolean>();
 const isSuccessResponse = ref<boolean>();
 
 const errorMessage = ref<string>();
+const successMessage = ref<string>();
 
 const isValidEmail = (email: string): boolean => {
   if (!validator.validate(email)) {
@@ -87,14 +88,17 @@ const isValidEmail = (email: string): boolean => {
   return true;
 };
 
-onMounted(() => {
-  if (user.isAuthenticated()) {
-    router.push('/');
-  }
-});
+// onMounted(() => {
+//   if (user.isAuthenticated()) {
+//     router.push('/');
+//   }
+// });
 
 const submit = async () => {
   isLoadingForm.value = true;
+  isSuccessResponse.value = false;
+  isErrorResponse.value = false;
+
   if (email.value && password.value) {
     const auth = new AuthenticationApiProvider();
     const userForm: UserForm = { email: email.value, password: password.value };
@@ -103,9 +107,12 @@ const submit = async () => {
       isErrorResponse.value = loggedIn.isError;
       errorMessage.value = loggedIn.message;
       isLoadingForm.value = false;
+    } else {
+      isSuccessResponse.value = true;
+      successMessage.value = loggedIn.message;
+      router.push('/');
+      isLoadingForm.value = false;
     }
-    // localStorage.setItem('veda_access_token', email.value);
-    // router.push('/');
   } else {
     alert('Email is undefined');
   }

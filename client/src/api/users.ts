@@ -1,6 +1,6 @@
 export class UserApiProvider {
   isAuthenticated(): boolean {
-    const userToken = localStorage.getItem('veda_access_token');
+    const userToken = localStorage.getItem('vedaAccessToken');
     if (userToken) {
       return true;
     }
