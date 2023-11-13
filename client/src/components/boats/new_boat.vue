@@ -3,14 +3,21 @@ import { defineComponent, ref } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { UserApiProvider } from '@/api/users';
 import { BoatApiData } from '@/utils/types';
-import { onMounted } from 'vue';
+import BoatsApiProvider from '@/api/boats';
 
 const emit = defineEmits(['close-dialog']);
 const user = new UserApiProvider();
+const isErrorResponse = ref<boolean>();
+const errorMessage = ref<string>();
+
+const isSuccessResponse = ref<boolean>();
+const successMessage = ref<string>();
+
+const isFormLoading = ref<boolean>(false);
+
 const boat = ref<BoatApiData>({
-  id: 0,
   title: '',
-  color: '',
+  color: '#004D40',
   isAvailable: false,
   description: '',
 });
@@ -33,7 +40,31 @@ const closedDialog = (closed: boolean) => {
   }, 500);
 };
 
-onMounted(generateRandomHexColor);
+const boatApiService = new BoatsApiProvider();
+
+const submit = async () => {
+  isFormLoading.value = true;
+  isErrorResponse.value = false;
+  isSuccessResponse.value = false;
+
+  errorMessage.value = undefined;
+  successMessage.value = undefined;
+
+  // Generate color.
+  if (boat.value.color === '#004D40') {
+    generateRandomHexColor();
+  }
+
+  const response = await boatApiService.post(boat.value);
+  if (response.isError) {
+    isErrorResponse.value = response.isError;
+    errorMessage.value = response.message;
+  } else {
+    isSuccessResponse.value = true;
+    successMessage.value = response.message;
+  }
+  isFormLoading.value = false;
+};
 </script>
 
 <template>
@@ -45,61 +76,68 @@ onMounted(generateRandomHexColor);
     @close-dialog="(closed: boolean) => closedDialog(closed)"
   >
     <template #body>
-      <div v-if="user.isAuthenticated()">
+      <div>
         <v-card elevation="0" class="pa-4">
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                :disabled="false"
-                v-model="boat.title"
-                color="black"
-                hide-details="auto"
-                variant="outlined"
-                append-icon="mdi-ferry"
-                label="Boat Title"
-                hint="The boat name, this name will be displayed in the calendar."
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <v-textarea
-                :disabled="false"
-                v-model="boat.description"
-                variant="outlined"
-                hide-details="auto"
-                append-icon="mdi-comment-text-outline"
-                label="Short Description"
-                hint="This field is not required, it's a simple description of the boat, you can ignore it if you prefer."
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <v-alert variant="tonal" :color="boat.color" title="Boat Color">
-                <v-color-picker
-                  class="mb-2 mt-2"
-                  v-model="boat.color"
-                  width="500"
-                  show-swatches
-                  hide-canvas
-                  hide-sliders
-                  hide-inputs
+          <v-form @submit="submit" class="pb-2">
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  :disabled="isFormLoading"
+                  v-model="boat.title"
+                  color="black"
+                  hide-details="auto"
+                  variant="outlined"
+                  append-icon="mdi-ferry"
+                  label="Boat Title"
+                  hint="The boat name, this name will be displayed in the calendar."
                 />
-                <small>
-                  This field is fully optional, in case you ignored it, we'll generate a random color for you.
-                </small>
-              </v-alert>
-            </v-col>
-          </v-row>
+              </v-col>
+
+              <v-col cols="12">
+                <v-textarea
+                  :disabled="isFormLoading"
+                  v-model="boat.description"
+                  variant="outlined"
+                  hide-details="auto"
+                  append-icon="mdi-comment-text-outline"
+                  label="Short Description"
+                  hint="This field is not required, it's a simple description of the boat, you can ignore it if you prefer."
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-alert variant="tonal" :color="boat.color" title="Boat Color">
+                  <v-color-picker
+                    class="mb-2 mt-2"
+                    v-model="boat.color"
+                    width="500"
+                    :disabled="isFormLoading"
+                    show-swatches
+                    hide-canvas
+                    hide-sliders
+                    hide-inputs
+                  />
+                  <small>
+                    This field is fully optional, in case you ignored it, we'll generate a random color for you.
+                  </small>
+                </v-alert>
+              </v-col>
+              <v-col cols="12">
+                <v-alert v-if="isErrorResponse" variant="tonal" type="error">{{ errorMessage }}</v-alert>
+                <v-alert v-if="isSuccessResponse" variant="tonal" type="success">{{ successMessage }}</v-alert>
+              </v-col>
+            </v-row>
+          </v-form>
         </v-card>
       </div>
     </template>
 
     <template #btn-action>
       <v-btn
-        v-if="user.isAuthenticated()"
         :disabled="boat.title.length === 0"
+        @click="submit"
         text="New Boat"
-        :loading="false"
+        :loading="isFormLoading"
         variant="outlined"
         :color="boat.color"
       ></v-btn>

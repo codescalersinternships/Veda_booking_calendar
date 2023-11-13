@@ -17,7 +17,7 @@ export class BoatController {
   static async post(
     req: Request,
     res: Response<ResponseType>,
-  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+  ): Promise<Response<ResponseType<BoatBody>, Record<string, any>>> {
     try {
       const data: BoatBody = req.body;
       if (!data.title || data.title.length === 0) {

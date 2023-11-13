@@ -9,6 +9,7 @@ import { router as userRouter } from './routes/route.user';
 import { db } from './models/';
 import { config } from './config/config';
 import { ResponseType } from './utils/types';
+import { authenticateToken, requestLogger } from './middlewares/middleware.user';
 
 const app = express();
 
@@ -26,6 +27,7 @@ if (db && db.sequelize) {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(authenticateToken).use(requestLogger);
 
 app.use('/api/auth', authRouter);
 app.use('/api/requests', requestRouter);

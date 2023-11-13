@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <default-bar v-if="user.isAuthenticated() && !isAuthRoute" />
+    <default-bar v-if="isAuthenticated && !isAuthRoute" />
     <div class="d-flex" v-else>
       <v-alert v-if="!isAuthRoute" type="warning" variant="tonal">
         You are not authenticated!, <router-link to="/login">Login</router-link>?
@@ -23,10 +23,16 @@ import { checkRoute } from '@/utils/helpers';
 
 const user = new UserApiProvider();
 const isAuthRoute = ref<boolean>(false);
+const isAuthenticated = ref<boolean>(false);
+
 const route = useRoute();
 
-onMounted(() => {
+onMounted(async () => {
   isAuthRoute.value = checkRoute(route);
+  isAuthenticated.value = await user.isAuthenticated();
+  if (!isAuthenticated.value) {
+    localStorage.removeItem('vedaAccessToken');
+  }
 });
 
 watch(

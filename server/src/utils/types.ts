@@ -5,7 +5,12 @@ export type UserApiData = SignupBody & {
   role: UserRole;
 };
 
-type ResponseBody<T> = {};
+type ResponseBody<T> = T;
+type RequestBody_<T> = T;
+
+export interface RequestType<T = any> {
+  user?: RequestBody_<T>;
+}
 
 export interface ResponseType<T = any> {
   message: string;
@@ -31,6 +36,8 @@ export type BoatBody = {
   title: string;
   description?: string;
   isAvailable: boolean;
+  color: string;
+  id?: number;
 };
 
 export enum UserRole {

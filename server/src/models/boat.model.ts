@@ -14,6 +14,10 @@ export const defineBoatTable = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      color: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       isAvailable: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

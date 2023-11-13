@@ -121,8 +121,9 @@ const isValidPassword = (password: string) => {
   return true;
 };
 
-onMounted(() => {
-  if (user.isAuthenticated()) {
+onMounted(async () => {
+  const isAuthenticated = await user.isAuthenticated();
+  if (isAuthenticated) {
     router.push('/');
   }
 });

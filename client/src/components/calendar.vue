@@ -13,9 +13,11 @@ import { handelDates } from '@/utils/helpers';
 import BoatsProvider from '@/api/boats';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
+import { UserApiProvider } from '@/api/users';
 
 const boatAPIProvider = new BoatsProvider();
 const requestAPIProvider = new RequestBoatAPIProvider();
+const userAPIProvider = new UserApiProvider();
 
 const isLoading = ref<boolean>(false);
 const isPostRequest = ref<boolean>(false);
@@ -30,6 +32,7 @@ const boats = ref<BoatApiData[]>([]);
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
   isLoading.value = true;
+  userAPIProvider.getRequestedUser();
   const loadRequests = await requestAPIProvider.all();
   const loadBoats = await boatAPIProvider.all();
   requests.value = loadRequests;
