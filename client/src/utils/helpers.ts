@@ -1,4 +1,7 @@
+import { RouteLocationNormalizedLoaded } from 'vue-router';
 import { CalendarDates } from './types';
+
+const SPECIAL_CHARS = /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
 
 export const handelDates = (dates: CalendarDates): CalendarDates => {
   const endDate = new Date(dates.end || '');
@@ -16,4 +19,21 @@ export const handelDates = (dates: CalendarDates): CalendarDates => {
   dates.endStr = endStr;
   dates.startStr = startStr;
   return dates;
+};
+
+export function containsSpecialChars(str: string) {
+  return SPECIAL_CHARS.test(str);
+}
+
+export function containsNumbers(str: string) {
+  return /\d/.test(str);
+}
+
+// Return true if current route related to auth routes and false if not.
+export const checkRoute = (route: RouteLocationNormalizedLoaded): boolean => {
+  const authRoutes = ['login', 'register'];
+  if (route.name && authRoutes.includes(route.name.toString())) {
+    return true;
+  }
+  return false;
 };

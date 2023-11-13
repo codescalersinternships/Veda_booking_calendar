@@ -3,8 +3,6 @@ import { Sequelize, ModelStatic, Model } from 'sequelize';
 export type UserApiData = SignupBody & {
   id: number;
   role: UserRole;
-  firstName: string;
-  lastName: string;
 };
 
 type ResponseBody<T> = {};
@@ -18,6 +16,8 @@ export interface ResponseType<T = any> {
 export type SignupBody = {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 };
 
 export type RequestBody = {
@@ -90,3 +90,15 @@ export enum BookingStatus {
   Request = 'requested',
   deposit = 'confirmed_with_deposit',
 }
+
+export type UserAuthFormResponse = {
+  id: number;
+  role: UserRole;
+  email: string;
+  password: string;
+  updatedAt: Date;
+  createdAt: Date;
+  vedaAccessToken: string;
+  firstName: string;
+  lastName: string;
+};

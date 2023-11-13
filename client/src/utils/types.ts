@@ -71,16 +71,25 @@ export enum UserRole {
   USER = 'user',
 }
 
-export type UserForm = {
+export type UserLoginForm = {
   email: string;
   password: string;
 };
-export type UserFormResponse = {
-  createdAt: Date;
-  updatedAt: Date;
+
+export type UserRegisterForm = {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+};
+
+export type UserAuthFormResponse = {
   id: number;
   role: UserRole;
   email: string;
   password: string;
+  updatedAt: Date;
+  createdAt: Date;
   vedaAccessToken: string;
 };

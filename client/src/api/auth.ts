@@ -1,4 +1,4 @@
-import { ResponseWrapper, UserForm, UserFormResponse } from '@/utils/types';
+import { ResponseWrapper, UserLoginForm, UserAuthFormResponse, UserRegisterForm } from '@/utils/types';
 import parseJwt from '../utils/parse_jwt';
 import http from './axios';
 import { AxiosResponse } from 'axios';
@@ -16,15 +16,27 @@ export class AuthenticationApiProvider {
     return false;
   }
 
-  async login(form: UserForm): Promise<ResponseWrapper<UserFormResponse>> {
+  async login(form: UserLoginForm): Promise<ResponseWrapper<UserAuthFormResponse>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<UserFormResponse>> = await http.post(
+      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post(
         import.meta.env.VITE_SERVER_DOMAIN + 'api/auth/signin/',
         form,
       );
-
       localStorage.setItem('vedaAccessToken', response.data.data!.vedaAccessToken);
-      // const userresponse = await http.get(import.meta.env.VITE_SERVER_DOMAIN + 'api/users/1/');
+      return { message: response.data.message, data: response.data.data, isError: false };
+    } catch (error: any) {
+      console.log('error', error);
+      return { message: error.response ? error.response.data.message : error.message, isError: true };
+    }
+  }
+
+  async register(form: UserRegisterForm): Promise<ResponseWrapper<UserAuthFormResponse>> {
+    try {
+      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post(
+        import.meta.env.VITE_SERVER_DOMAIN + 'api/auth/signup/',
+        form,
+      );
+      localStorage.setItem('vedaAccessToken', response.data.data!.vedaAccessToken);
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
       console.log('error', error);

@@ -1,9 +1,9 @@
+import { UserAuthFormResponse } from './../../../client/src/utils/types';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { config } from '../config/config';
 import { db } from '../models';
-import { saveUser } from '../middlewares/middleware.user';
 import { SignupBody, ResponseType } from '../utils/types';
 
 const User: any = db.users;
@@ -21,9 +21,23 @@ export class UserController {
   static async signup(
     req: Request<any>,
     res: Response<ResponseType>,
-  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+  ): Promise<Response<ResponseType<UserAuthFormResponse>, Record<string, any>>> {
     try {
-      saveUser(req, res);
+      try {
+        const existingUser = await User.findOne({
+          where: {
+            email: req.body.email,
+          },
+        });
+
+        if (existingUser) {
+          return res.status(400).send({ message: 'Email is already in use.', status: 400 });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(400).send({ message: `Error while checking for existing user: ${error}`, status: 400 });
+      }
+
       const data: SignupBody = req.body;
 
       // Check if email and password are present in the request body
@@ -31,6 +45,10 @@ export class UserController {
         return res.status(400).send({ message: 'Email is required.', status: 400 });
       } else if (!data.password) {
         return res.status(400).send({ message: 'Password is required.', status: 400 });
+      } else if (!data.firstName) {
+        return res.status(400).send({ message: 'First name is required.', status: 400 });
+      } else if (!data.lastName) {
+        return res.status(400).send({ message: 'Last name is required.', status: 400 });
       } else {
         // Hash the password
         data.password = await bcrypt.hash(data.password, 10);

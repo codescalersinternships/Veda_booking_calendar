@@ -124,7 +124,7 @@ const isBookButtonDisabled = () => {
         </div>
       </div>
       <div v-else>
-        <v-alert title="You don't have permission to preform this action" type="error" variant="tonal">
+        <v-alert title="Oops! It seems like you're not authorized to perform this action." type="error" variant="tonal">
           Admins have the power to post requests. Ready to access the
           <router-link to="/login">Admin Login Page</router-link>?
         </v-alert>

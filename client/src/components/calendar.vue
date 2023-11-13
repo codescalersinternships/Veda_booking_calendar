@@ -237,4 +237,9 @@ export default {
 .d-none {
   display: none !important;
 }
+.v-main {
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
 </style>

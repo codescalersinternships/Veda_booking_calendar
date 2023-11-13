@@ -21,6 +21,14 @@ export const defineUserTable = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     { timestamps: true, freezeTableName: true },
   );
