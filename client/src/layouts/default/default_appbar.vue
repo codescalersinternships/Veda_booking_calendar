@@ -5,12 +5,19 @@
       Veda Booking System
     </v-app-bar-title>
 
+    <v-btn @click="displayNewBoat = true" variant="tonal" color="" class="me-2">
+      New Boat
+      <v-icon class="ml-1 mr-1">mdi-plus-circle</v-icon>
+    </v-btn>
     <template v-slot:append>
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-dots-vertical" />
+          <v-btn v-bind="props" variant="tonal" color="" class="me-2">
+            More
+            <v-icon class="">mdi-menu-down</v-icon>
+          </v-btn>
         </template>
-        <v-list class="mt-2" width="220px">
+        <v-list class="mt-4" width="220px">
           <v-list-item v-for="(route, index) in routes" :key="index" :value="index">
             <v-list-item-title @click="route.onClick">{{ route.title }}</v-list-item-title>
           </v-list-item>
@@ -18,11 +25,17 @@
       </v-menu>
     </template>
   </v-app-bar>
+
+  <!-- New Boat -->
+  <new-boat @close-dialog="displayNewBoat = false" :displayNewBoat="displayNewBoat" />
 </template>
 
 <script lang="ts" setup>
 import router from '@/router';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import NewBoat from '@/components/boats/new_boat.vue';
+
+const displayNewBoat = ref<boolean>(false);
 
 type Route = {
   title: string;
@@ -42,5 +55,7 @@ const routes: Route[] = [
 </script>
 
 <script lang="ts">
-export default defineComponent({});
+export default defineComponent({
+  components: { NewBoat },
+});
 </script>

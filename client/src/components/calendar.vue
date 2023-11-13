@@ -6,8 +6,8 @@ import listPlugin from '@fullcalendar/list';
 import { CalendarOptions, DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import { onMounted, reactive, ref, watch, capitalize } from 'vue';
-import viewBoatDetailsComponent from '@/components/boats/view_boat_details.vue';
-import reserveBoatComponent from '@/components/boats/reserve_boat.vue';
+import ViewRequest from '@/components/requests/view_request.vue';
+import NewRequest from '@/components/requests/request.vue';
 import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
 import { handelDates } from '@/utils/helpers';
 import BoatsProvider from '@/api/boats';
@@ -208,10 +208,10 @@ watch(
     </div>
 
     <!-- Boat details -->
-    <view-boat-details-component @close-dialog="isViewRequest = false" :is-open="isViewRequest" :request="request" />
+    <view-request @close-dialog="isViewRequest = false" :is-open="isViewRequest" :request="request" />
 
     <!-- reserve new boat -->
-    <reserve-boat-component
+    <new-request
       @update:select-boat="onSelectBoat"
       @close-dialog="isPostRequest = false"
       @update:request="updateRequest"
@@ -225,7 +225,7 @@ watch(
 <script lang="ts">
 export default {
   // viewBoatDetailsComponent,
-  components: { reserveBoatComponent },
+  components: { NewRequest, ViewRequest },
 };
 </script>
 

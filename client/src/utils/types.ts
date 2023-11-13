@@ -2,9 +2,9 @@ import { CalendarApi } from '@fullcalendar/core';
 
 export type BoatApiData = {
   id: number;
-  title: BoatNames;
+  title: string;
   description?: string;
-  color: BoatColor;
+  color: string;
   isAvailable: boolean;
 };
 
