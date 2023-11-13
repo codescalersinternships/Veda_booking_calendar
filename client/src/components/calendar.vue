@@ -13,12 +13,9 @@ import { handelDates } from '@/utils/helpers';
 import BoatsProvider from '@/api/boats';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
-import { UserApiProvider } from '@/api/users';
-import router from '@/router';
 
 const boatAPIProvider = new BoatsProvider();
 const requestAPIProvider = new RequestBoatAPIProvider();
-const user = new UserApiProvider();
 
 const isLoading = ref<boolean>(false);
 const isPostRequest = ref<boolean>(false);
@@ -29,43 +26,38 @@ const boat = ref<BoatApiData>(boatData);
 
 const requests = ref<RequestAPIData[]>([]);
 const boats = ref<BoatApiData[]>([]);
-const today = new Date();
 
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
   isLoading.value = true;
-  if (user.isAuthenticated()) {
-    const loadRequests = await requestAPIProvider.all();
-    const loadBoats = await boatAPIProvider.all();
-    requests.value = loadRequests;
-    boats.value = loadBoats;
+  const loadRequests = await requestAPIProvider.all();
+  const loadBoats = await boatAPIProvider.all();
+  requests.value = loadRequests;
+  boats.value = loadBoats;
 
-    if (options.events) {
-      for (const _request of requests.value) {
-        const dates = handelDates({
-          end: _request.end,
-          start: _request.start,
-          endStr: _request.endStr,
-          startStr: _request.startStr,
-          add: true,
-        });
+  if (options.events) {
+    for (const _request of requests.value) {
+      const dates = handelDates({
+        end: _request.end,
+        start: _request.start,
+        endStr: _request.endStr,
+        startStr: _request.startStr,
+        add: true,
+      });
 
-        options.events.push({
-          id: _request.id,
-          title: normalizeRequestTitle(_request),
-          start: dates.start,
-          end: dates.end,
-          startStr: dates.startStr,
-          endStr: dates.endStr,
-          color: _request.boat.color,
-          boat: _request.boat,
-        });
-      }
+      options.events.push({
+        id: _request.id,
+        title: normalizeRequestTitle(_request),
+        start: dates.start,
+        end: dates.end,
+        startStr: dates.startStr,
+        endStr: dates.endStr,
+        color: _request.boat.color,
+        boat: _request.boat,
+      });
     }
-    isLoading.value = false;
-  } else {
-    router.push('/login');
   }
+  isLoading.value = false;
 });
 
 const onClick = async (arg: EventClickArg) => {
@@ -87,8 +79,8 @@ const validateDate = (startDate: Date) => {
 };
 
 const onSelect = async (arg: DateSelectArg) => {
-  const validated: boolean = validateDate(arg.start);
   const calendar = arg.view.calendar;
+  const validated: boolean = validateDate(arg.start);
 
   if (validated) {
     arg.view.type = 'disabled';

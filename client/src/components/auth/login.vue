@@ -88,11 +88,11 @@ const isValidEmail = (email: string): boolean => {
   return true;
 };
 
-// onMounted(() => {
-//   if (user.isAuthenticated()) {
-//     router.push('/');
-//   }
-// });
+onMounted(() => {
+  if (user.isAuthenticated()) {
+    router.push('/');
+  }
+});
 
 const submit = async () => {
   isLoadingForm.value = true;
@@ -110,6 +110,7 @@ const submit = async () => {
     } else {
       isSuccessResponse.value = true;
       successMessage.value = loggedIn.message;
+      window.location.reload();
       router.push('/');
       isLoadingForm.value = false;
     }

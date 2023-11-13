@@ -3,8 +3,10 @@ import { PropType, defineComponent, ref } from 'vue';
 import { BoatApiData, RequestAPIData } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { boats } from '@/api/dummy_data';
+import { UserApiProvider } from '@/api/users';
 
 const emit = defineEmits(['close-dialog', 'update:request', 'update:select-boat']);
+const user = new UserApiProvider();
 
 const props = defineProps({
   isOpen: {
@@ -51,78 +53,87 @@ const isBookButtonDisabled = () => {
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card elevation="0" color="blue-lighten-5" class="pa-4">
-        <v-row>
-          <v-col>
-            <v-text-field
-              color="black"
-              variant="outlined"
-              hide-details
-              append-icon="mdi-calendar"
-              label="From"
-              :disabled="true"
-              v-model="$props.request.startStr"
-            />
-          </v-col>
+      <div v-if="user.isAuthenticated()">
+        <v-card elevation="0" color="blue-lighten-5" class="pa-4">
+          <v-row>
+            <v-col>
+              <v-text-field
+                color="black"
+                variant="outlined"
+                hide-details
+                append-icon="mdi-calendar"
+                label="From"
+                :disabled="true"
+                v-model="$props.request.startStr"
+              />
+            </v-col>
 
-          <v-col>
-            <v-text-field
-              :disabled="true"
-              v-model="$props.request.endStr"
-              variant="outlined"
-              hide-details
-              append-icon="mdi-calendar"
-              label="To"
-            />
-          </v-col>
-        </v-row>
-      </v-card>
+            <v-col>
+              <v-text-field
+                :disabled="true"
+                v-model="$props.request.endStr"
+                variant="outlined"
+                hide-details
+                append-icon="mdi-calendar"
+                label="To"
+              />
+            </v-col>
+          </v-row>
+        </v-card>
 
-      <v-select
-        class="mt-4"
-        variant="outlined"
-        hide-details
-        append-icon="mdi-ferry"
-        label="Boat"
-        :items="boats"
-        @update:model-value="checkAvailability"
-        :disabled="isLoadingCheckAvilable"
-        :loading="isLoadingCheckAvilable"
-        :messages="'This is a meesage'"
-        :item-color="request.boat.color"
-        :base-color="request.boat.color"
-        :color="request.boat.color"
-      />
+        <v-select
+          class="mt-4"
+          variant="outlined"
+          hide-details
+          append-icon="mdi-ferry"
+          label="Boat"
+          :items="boats"
+          @update:model-value="checkAvailability"
+          :disabled="isLoadingCheckAvilable"
+          :loading="isLoadingCheckAvilable"
+          :messages="'This is a meesage'"
+          :item-color="request.boat.color"
+          :base-color="request.boat.color"
+          :color="request.boat.color"
+        />
 
-      <div v-if="isLoadingCheckAvilable" class="check-available pt-1 d-flex justify-space-between align-center">
-        <small class="text-grey-darken-3 ml-1 mt-0 pt-0">
-          Checking the availability of the {{ $props.request.boat.title?.toLocaleUpperCase() }} boat...
-        </small>
+        <div v-if="isLoadingCheckAvilable" class="check-available pt-1 d-flex justify-space-between align-center">
+          <small class="text-grey-darken-3 ml-1 mt-0 pt-0">
+            Checking the availability of the {{ $props.request.boat.title?.toLocaleUpperCase() }} boat...
+          </small>
+        </div>
+
+        <div
+          v-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && request.boat.isAvailable"
+          class="check-available pt-1 d-flex justify-space-between align-center"
+        >
+          <small>
+            <strong class="text-green-darken-1 ml-1 mt-0 pt-0"> {{ $props.request.boat.title }} is available. </strong>
+          </small>
+          <v-icon icon="mdi-checkbox-marked-circle-outline" color="green-lighten-1" />
+        </div>
+
+        <div
+          v-else-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && !request.boat.isAvailable"
+          class="check-available pt-1 d-flex justify-space-between align-center"
+        >
+          <small>
+            <strong class="text-red-lighten-2 ml-1 mt-0 pt-0">{{ $props.request.boat.title }} is not available.</strong>
+          </small>
+          <v-icon icon="mdi-close-circle-outline" color="red-lighten-3" />
+        </div>
       </div>
-
-      <div
-        v-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && request.boat.isAvailable"
-        class="check-available pt-1 d-flex justify-space-between align-center"
-      >
-        <small>
-          <strong class="text-green-darken-1 ml-1 mt-0 pt-0"> {{ $props.request.boat.title }} is available. </strong>
-        </small>
-        <v-icon icon="mdi-checkbox-marked-circle-outline" color="green-lighten-1" />
-      </div>
-
-      <div
-        v-else-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && !request.boat.isAvailable"
-        class="check-available pt-1 d-flex justify-space-between align-center"
-      >
-        <small>
-          <strong class="text-red-lighten-2 ml-1 mt-0 pt-0">{{ $props.request.boat.title }} is not available.</strong>
-        </small>
-        <v-icon icon="mdi-close-circle-outline" color="red-lighten-3" />
+      <div v-else>
+        <v-alert title="You don't have permission to preform this action" type="error" variant="tonal">
+          Admins have the power to post requests. Ready to access the
+          <router-link to="/login">Admin Login Page</router-link>?
+        </v-alert>
       </div>
     </template>
 
     <template #btn-action>
       <v-btn
+        v-if="user.isAuthenticated()"
         :disabled="isBookButtonDisabled()"
         text="Book"
         :loading="isLoadingCheckAvilable"

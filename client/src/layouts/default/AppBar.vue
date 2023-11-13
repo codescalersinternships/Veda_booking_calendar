@@ -6,12 +6,6 @@
     </v-app-bar-title>
 
     <template v-slot:append>
-      <!-- <v-tooltip text="Book new boat">
-        <template v-slot:activator="{ props }">
-          <v-btn @click="() => (displayeReserveBoat = true)" v-bind="props" icon="mdi-plus" />
-        </template>
-      </v-tooltip> -->
-
       <v-tooltip text="Search boats">
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" icon="mdi-magnify"></v-btn>
@@ -24,38 +18,35 @@
         </template>
         <v-list class="mt-2" width="150px">
           <v-list-item v-for="(route, index) in routes" :key="index" :value="index">
-            <v-list-item-title>{{ route }}</v-list-item-title>
+            <v-list-item-title @click="route.onClick">{{ route.title }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
     </template>
   </v-app-bar>
-
-  <!-- reserve new boat
-  <reserve-boat-component
-    @close-dialog="displayeReserveBoat = false"
-    :modelValue="displayeReserveBoat"
-    :boat="reserveBoatInitializer"
-    @event-reserved="(event: EventDetails) => {
-      eventReserved(event)
-      displayeReserveBoat = false
-    }"
-    :enable-calendar="true"
-  /> -->
 </template>
 
 <script lang="ts" setup>
-// import reserveBoatComponent from '@/components/boats/reserve_boat.vue';
+import router from '@/router';
 import { defineComponent } from 'vue';
-// import { eventReserved } from '@/utils/book_boat';
-// import { EventDetails, reserveBoatInitializer } from '@/utils/types';
 
-const routes = ['Settings', 'Logout'];
-// const displayeReserveBoat = ref<boolean>(false);
+type Route = {
+  title: string;
+  onClick: () => void;
+};
+
+const routes: Route[] = [
+  { title: 'Settings', onClick: () => router.push('/settings') },
+  {
+    title: 'Logout',
+    onClick: () => {
+      localStorage.removeItem('vedaAccessToken');
+      window.location.reload();
+    },
+  },
+];
 </script>
 
 <script lang="ts">
-export default defineComponent({
-  // components: { reserveBoatComponent },
-});
+export default defineComponent({});
 </script>

@@ -27,7 +27,7 @@ defineProps({
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card color="blue-lighten-5" class="pa-4">
+      <v-card class="pa-4">
         <v-row>
           <v-col>
             <v-text-field

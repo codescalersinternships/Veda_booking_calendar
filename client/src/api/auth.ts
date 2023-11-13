@@ -24,12 +24,7 @@ export class AuthenticationApiProvider {
       );
 
       localStorage.setItem('vedaAccessToken', response.data.data!.vedaAccessToken);
-
-      const userresponse = await http.get(import.meta.env.VITE_SERVER_DOMAIN + 'api/users/1/');
-
-      console.log('response', response);
-      console.log('userresponse', userresponse);
-
+      // const userresponse = await http.get(import.meta.env.VITE_SERVER_DOMAIN + 'api/users/1/');
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
       console.log('error', error);
