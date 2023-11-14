@@ -11,9 +11,9 @@ export class AuthenticationApiProvider {
     }
 
     if (!parseJwt(accessToken)) {
-      return true;
+      return false;
     }
-    return false;
+    return true;
   }
 
   async login(form: UserLoginForm): Promise<ResponseWrapper<UserAuthFormResponse>> {

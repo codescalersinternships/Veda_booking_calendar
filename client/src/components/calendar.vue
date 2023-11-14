@@ -12,13 +12,12 @@ import ViewRequest from '@/components/requests/view_request.vue';
 import NewRequest from '@/components/requests/request.vue';
 import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
 import { handelDates } from '@/utils/helpers';
-import BoatsProvider from '@/api/boats';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
 import { UserApiProvider } from '@/api/users';
 import { AuthenticationApiProvider } from '@/api/auth';
+import BoatsApiProvider from '@/api/boats';
 
-const boatAPIProvider = new BoatsProvider();
 const requestAPIProvider = new RequestBoatAPIProvider();
 const userAPIProvider = new UserApiProvider();
 
@@ -36,16 +35,17 @@ const boats = ref<BoatApiData[]>([]);
 onMounted(async () => {
   isLoading.value = true;
   const user = await userAPIProvider.getRequestedUser();
-  if (user.status === 401) {
+
+  if (user.isError) {
     // Unauthorized user, user should login again.
     AuthenticationApiProvider.logout();
+  } else {
+    const loadBoats = await BoatsApiProvider.all();
+    boats.value = loadBoats.data!;
   }
 
   const loadRequests = await requestAPIProvider.all();
-  const loadBoats = await boatAPIProvider.all();
   requests.value = loadRequests;
-  boats.value = loadBoats;
-
   if (options.events) {
     for (const _request of requests.value) {
       const dates = handelDates({
@@ -68,6 +68,7 @@ onMounted(async () => {
       });
     }
   }
+
   isLoading.value = false;
 });
 
@@ -141,7 +142,9 @@ const options = reactive<CalendarOptions>({
   editable: false,
 });
 
-const onSelectBoat = (boatName: string) => {
+const onSelectBoat = async (boatName: string) => {
+  const loadBoats = await BoatsApiProvider.all();
+  boats.value = loadBoats.data!;
   const thisBoat = boats.value.filter(boat => boat.title === boatName);
   request.value.boat = thisBoat[0];
   boat.value = request.value.boat;
@@ -224,7 +227,12 @@ watch(
     <!-- reserve new boat -->
     <new-request
       @update:select-boat="onSelectBoat"
-      @close-dialog="isPostRequest = false"
+      @close-dialog="
+        () => {
+          resetRequest();
+          isPostRequest = false;
+        }
+      "
       @update:request="updateRequest"
       :is-open="isPostRequest"
       :request="request"

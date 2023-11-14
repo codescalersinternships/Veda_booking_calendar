@@ -16,7 +16,7 @@ const isFormLoading = ref<boolean>(false);
 const boat = ref<BoatApiData>({
   title: '',
   color: '#004D40',
-  isAvailable: false,
+  isAvailable: true,
   description: '',
 });
 
@@ -33,9 +33,9 @@ function generateRandomHexColor() {
 
 const closedDialog = (closed: boolean) => {
   emit('close-dialog', closed);
-  setTimeout(() => {
-    boat.value.color = '#' + ((Math.random() * 0xffffff) << 0).toString(16);
-  }, 500);
+  // setTimeout(() => {
+  //   boat.value.color = '#' + ((Math.random() * 0xffffff) << 0).toString(16);
+  // }, 500);
 };
 
 const boatApiService = new BoatsApiProvider();

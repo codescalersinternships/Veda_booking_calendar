@@ -56,11 +56,28 @@ export class BoatController {
       });
 
       if (boat) {
-        return res.status(201).send({ data: boat, message: 'Success response.', status: 201 });
+        return res.status(200).send({ data: boat, message: 'Success response.', status: 201 });
       }
       return res.status(404).send({ message: `Record not found.`, status: 404 });
     } catch (error) {
-      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
+      return res.status(400).send({ message: `Error while getting boat due:`, status: 400 });
+    }
+  }
+  /**
+   * Handles all boats.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async all(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const boat = (await Boat.findAll()) || [];
+      return res.status(200).send({ data: boat, message: 'Success response.', status: 201 });
+    } catch (error) {
+      return res.status(400).send({ message: `Error while getting boats due:`, status: 400 });
     }
   }
 }

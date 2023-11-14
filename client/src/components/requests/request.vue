@@ -1,11 +1,33 @@
 <script lang="ts" setup>
-import { PropType, defineComponent, ref } from 'vue';
+import { PropType, defineComponent, ref, watch } from 'vue';
 import { BoatApiData, RequestAPIData } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
-import { boats } from '@/api/dummy_data';
 import { UserApiProvider } from '@/api/users';
+import BoatsApiProvider from '@/api/boats';
+import { AuthenticationApiProvider } from '@/api/auth';
 
 const emit = defineEmits(['close-dialog', 'update:request', 'update:select-boat']);
+const isLoadingBoats = ref<boolean>();
+const boats = ref<BoatApiData[]>([]);
+const isErrorLoadingBoats = ref<boolean>();
+const errorMessage = ref<string>();
+
+const loadBoats = async () => {
+  isLoadingBoats.value = true;
+  errorMessage.value = undefined;
+  isErrorLoadingBoats.value = false;
+  console.log(AuthenticationApiProvider.isAuthenticated());
+  if (AuthenticationApiProvider.isAuthenticated()) {
+    const response = await BoatsApiProvider.all();
+    if (response.isError) {
+      errorMessage.value = response.message;
+      isErrorLoadingBoats.value = response.isError;
+    } else {
+      boats.value = response.data!;
+    }
+  }
+  isLoadingBoats.value = false;
+};
 
 const props = defineProps({
   isOpen: {
@@ -21,6 +43,16 @@ const props = defineProps({
     required: false,
   },
 });
+
+watch(
+  props,
+  async () => {
+    if (props.isOpen) {
+      await loadBoats();
+    }
+  },
+  { deep: true },
+);
 
 const isLoadingCheckAvilable = ref<boolean>(false);
 const checkAvailability = (selectedItem: string) => {
@@ -86,12 +118,12 @@ const isBookButtonDisabled = () => {
           label="Boat"
           :items="boats"
           @update:model-value="checkAvailability"
-          :disabled="isLoadingCheckAvilable"
-          :loading="isLoadingCheckAvilable"
+          :disabled="isLoadingBoats || isLoadingCheckAvilable"
           :messages="'This is a meesage'"
           :item-color="request.boat.color"
           :base-color="request.boat.color"
           :color="request.boat.color"
+          :loading="isLoadingBoats || isLoadingCheckAvilable"
         />
 
         <div v-if="isLoadingCheckAvilable" class="check-available pt-1 d-flex justify-space-between align-center">
@@ -99,7 +131,7 @@ const isBookButtonDisabled = () => {
             Checking the availability of the {{ $props.request.boat.title?.toLocaleUpperCase() }} boat...
           </small>
         </div>
-
+        <v-alert v-if="isErrorLoadingBoats" type="error" variant="tonal" class="mt-3">{{ errorMessage }}</v-alert>
         <div
           v-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && request.boat.isAvailable"
           class="check-available pt-1 d-flex justify-space-between align-center"

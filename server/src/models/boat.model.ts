@@ -21,7 +21,7 @@ export const defineBoatTable = (sequelize: Sequelize) => {
       isAvailable: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
+        defaultValue: true,
       },
     },
     { timestamps: true, freezeTableName: true },
