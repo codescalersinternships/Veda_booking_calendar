@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, defineComponent, ref } from 'vue';
 import validator from 'email-validator';
-import { UserApiProvider } from '@/api/users';
 import router from '@/router';
 import { AuthenticationApiProvider } from '@/api/auth';
 import { UserLoginForm } from '@/utils/types';
@@ -52,7 +51,7 @@ const isValidPassword = (password: string) => {
 };
 
 onMounted(async () => {
-  if (UserApiProvider.isAuthenticated()) {
+  if (AuthenticationApiProvider.isAuthenticated()) {
     router.push('/');
   }
 });

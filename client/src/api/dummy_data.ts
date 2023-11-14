@@ -45,6 +45,8 @@ export const requests = ref<RequestAPIData[]>([
     id: 1,
     requestStatusColor: BookingStatusColor.Request,
     status: BookingStatus.NotSet,
+    companyName: 'Star X',
+    contactPerson: '(+226) - 996 - 13',
   },
   {
     boat: boats[1],
@@ -55,6 +57,8 @@ export const requests = ref<RequestAPIData[]>([
     id: 2,
     requestStatusColor: BookingStatusColor.Tentative,
     status: BookingStatus.Tentative,
+    companyName: 'Sponser Z',
+    contactPerson: '(+226) - 996 - 13',
   },
   {
     boat: boats[2],
@@ -65,6 +69,8 @@ export const requests = ref<RequestAPIData[]>([
     id: 3,
     requestStatusColor: BookingStatusColor.Tentative,
     status: BookingStatus.Tentative,
+    companyName: 'Amazing sa',
+    contactPerson: '(+226) - 996 - 13',
   },
   {
     boat: boats[3],
@@ -75,14 +81,20 @@ export const requests = ref<RequestAPIData[]>([
     id: 4,
     requestStatusColor: BookingStatusColor.deposit,
     status: BookingStatus.deposit,
+    companyName: 'Cloudyhost',
+    contactPerson: 'mango@gmail.com',
+    fee: {
+      deposit: 50,
+      total: 100,
+    },
   },
 ]);
 
 export const boatData: BoatApiData = {
   id: 0,
-  title: BoatNames.Veda1,
+  title: undefined,
   description: undefined,
-  color: BoatColor.Veda1,
+  color: '',
   isAvailable: false,
 };
 
@@ -95,4 +107,6 @@ export const requestData: RequestAPIData = {
   startStr: todayStr,
   status: BookingStatus.NotSet,
   requestStatusColor: BookingStatusColor.NotSet,
+  companyName: '',
+  contactPerson: '',
 };

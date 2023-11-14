@@ -132,7 +132,7 @@ const submit = async () => {
 
     <template #btn-action>
       <v-btn
-        :disabled="boat.title.length === 0"
+        :disabled="!boat.title || boat.title.length === 0"
         @click="submit"
         text="New Boat"
         :loading="isFormLoading"

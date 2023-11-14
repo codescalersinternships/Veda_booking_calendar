@@ -2,10 +2,15 @@ import { CalendarApi } from '@fullcalendar/core';
 
 export type BoatApiData = {
   id?: number;
-  title: string;
+  title?: string;
   description?: string;
   color: string;
   isAvailable: boolean;
+};
+
+export type RequestPaymentFee = {
+  total: number;
+  deposit: number;
 };
 
 export type RequestAPIData = {
@@ -15,9 +20,12 @@ export type RequestAPIData = {
   endStr: string;
   start: Date;
   startStr: string;
+  companyName: string;
+  contactPerson: string;
   calendar?: CalendarApi;
   status: BookingStatus;
   requestStatusColor: BookingStatusColor;
+  fee?: RequestPaymentFee;
 };
 
 export enum BoatNames {

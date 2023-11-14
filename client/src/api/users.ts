@@ -1,21 +1,8 @@
 import { AxiosResponse } from 'axios';
 import { UserAuthFormResponse, ResponseWrapper, UserRole } from '@/utils/types';
-import parseJwt from '../utils/parse_jwt';
 import http from './axios';
 
 export class UserApiProvider {
-  static isAuthenticated(): boolean {
-    const accessToken = localStorage.getItem('vedaAccessToken');
-    if (!accessToken) {
-      return false;
-    }
-
-    if (!parseJwt(accessToken)) {
-      return false;
-    }
-    return true;
-  }
-
   async getRequestedUser(): Promise<ResponseWrapper<UserAuthFormResponse>> {
     try {
       const userresponse: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.get(
@@ -28,11 +15,11 @@ export class UserApiProvider {
     }
   }
 
-  async isAdmin() {
+  static isAdmin() {
     return sessionStorage.getItem('vedaUserRole') === UserRole.ADMIN ? true : false;
   }
 
-  async isUser() {
+  static isUser() {
     return sessionStorage.getItem('vedaUserRole') === UserRole.USER ? true : false;
   }
 }

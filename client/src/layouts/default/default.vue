@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <default-bar v-if="UserApiProvider.isAuthenticated() && !isAuthRoute" />
+    <default-bar v-if="AuthenticationApiProvider.isAuthenticated() && !isAuthRoute" />
     <div class="d-flex" v-else>
       <v-alert v-if="!isAuthRoute" type="warning" variant="tonal">
         You are not authenticated!, <router-link to="/login">Login</router-link>?
@@ -17,7 +17,7 @@ import { onMounted, ref, watch, defineComponent } from 'vue';
 import DefaultBar from './default_appbar.vue';
 import AuthBar from './auth_appbar.vue';
 import DefaultView from './view.vue';
-import { UserApiProvider } from '@/api/users';
+import { AuthenticationApiProvider } from '@/api/auth';
 import { useRoute } from 'vue-router';
 import { checkRoute } from '@/utils/helpers';
 

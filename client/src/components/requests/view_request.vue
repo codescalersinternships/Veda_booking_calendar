@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { PropType, defineComponent, capitalize } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
-import { RequestAPIData } from '@/utils/types';
+import { BookingStatus, RequestAPIData } from '@/utils/types';
+import { AuthenticationApiProvider } from '@/api/auth';
+import { UserApiProvider } from '@/api/users';
 
 const emit = defineEmits(['close-dialog']);
 
@@ -18,64 +20,143 @@ defineProps({
 </script>
 
 <template>
-  <!-- :title="$props.boat.title + ' ' + 'booking details'" -->
   <custom-dialog
-    :title="`View ${capitalize(request.boat.title)} Request`"
+    :title="`View ${capitalize(request.boat.title || '')} Request`"
     :modelValue="isOpen"
-    :header-color="request.boat.color"
+    :header-color="request.boat.color || 'primary'"
     width="600"
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card class="pa-4">
-        <v-row>
-          <v-col>
-            <v-text-field
-              color="black"
-              variant="outlined"
-              hide-details
-              append-icon="mdi-calendar"
-              :disabled="true"
-              label="From"
-              v-model="$props.request.startStr"
-            />
-          </v-col>
-          <v-col>
-            <v-text-field
-              v-model="$props.request.endStr"
-              variant="outlined"
-              hide-details
-              append-icon="mdi-calendar"
-              :disabled="true"
-              label="To"
-            />
-          </v-col>
-        </v-row>
+      <v-card variant="outlined" :color="request.boat.color || 'primary'" class="pa-4">
+        <div class="mt-5">
+          <v-text-field
+            :color="request.boat.color || 'primary'"
+            :item-color="request.boat.color || 'primary'"
+            :base-color="request.boat.color || 'primary'"
+            variant="outlined"
+            hide-details="auto"
+            append-icon="mdi-calendar"
+            label="From"
+            :readonly="true"
+            v-model="$props.request.startStr"
+            hint="Request start date, usually selected from the calendar."
+          />
+        </div>
+
+        <div class="mt-5">
+          <v-text-field
+            :color="request.boat.color || 'primary'"
+            :item-color="request.boat.color || 'primary'"
+            :base-color="request.boat.color || 'primary'"
+            v-model="$props.request.endStr"
+            variant="outlined"
+            hide-details="auto"
+            append-icon="mdi-calendar"
+            :readonly="true"
+            label="To"
+            hint="Request end date, usually selected from the calendar."
+          />
+        </div>
+
         <v-select
-          class="mt-4"
+          :item-color="request.boat.color || 'primary'"
+          :base-color="request.boat.color || 'primary'"
+          :color="request.boat.color || 'primary'"
+          class="mt-5"
           variant="outlined"
-          hide-details
+          hide-details="auto"
           append-icon="mdi-ferry"
           label="Boat"
-          :disabled="true"
+          :readonly="true"
           :model-value="request.boat.title"
           :bg-color="'blue-lighten-5'"
-          :color="request.boat.color"
+          :hint="`This request on ${request.boat.title} boat.`"
         />
-        <div class="status mt-5">
-          <v-row>
-            <v-col class="d-flex justify-start align-center" cols="6">
-              <p>Request Status</p>
-            </v-col>
-            <v-col class="d-flex justify-end align-center">
+
+        <div class="mt-5">
+          <v-text-field
+            :item-color="request.boat.color || 'primary'"
+            :base-color="request.boat.color || 'primary'"
+            :color="request.boat.color || 'primary'"
+            variant="outlined"
+            label="Company Name"
+            v-model="$props.request.companyName"
+            hide-details="auto"
+            append-icon="mdi-domain"
+            :readonly="true"
+            hint="The company/person of the reservation."
+          />
+        </div>
+
+        <div class="mt-5">
+          <v-text-field
+            :item-color="request.boat.color || 'primary'"
+            :base-color="request.boat.color || 'primary'"
+            :color="request.boat.color || 'primary'"
+            variant="outlined"
+            hide-details="auto"
+            label="Contact Person"
+            v-model="$props.request.contactPerson"
+            :hint="`The reservation company/person contact details.`"
+          >
+            <template v-slot:append>
+              <v-icon :color="request.boat.color || 'primary'">mdi-account-box-outline</v-icon>
+            </template>
+          </v-text-field>
+        </div>
+
+        <div class="mt-5">
+          <v-text-field
+            :item-color="request.boat.color || 'primary'"
+            :base-color="request.boat.color || 'primary'"
+            :color="request.boat.color || 'primary'"
+            variant="outlined"
+            hide-details="auto"
+            label="Request Status"
+            :model-value="capitalize(request.status)"
+            :hint="`Request status`"
+          >
+            <template v-slot:append>
               <div class="dot" :style="{ backgroundColor: request.requestStatusColor }"></div>
-              <p>
-                {{ capitalize(request.status) }}
-              </p>
+            </template>
+          </v-text-field>
+        </div>
+
+        <div class="mt-5" v-if="request.status === BookingStatus.deposit">
+          <v-row>
+            <v-col>
+              <v-text-field
+                :item-color="request.boat.color || 'primary'"
+                :base-color="request.boat.color || 'primary'"
+                :color="request.boat.color || 'primary'"
+                variant="outlined"
+                hide-details="auto"
+                label="Total fee"
+                v-model="$props.request.fee!.total"
+                :hint="`Total reservation amount.`"
+              />
+            </v-col>
+            <v-col>
+              <v-text-field
+                :item-color="request.boat.color || 'primary'"
+                :base-color="request.boat.color || 'primary'"
+                :color="request.boat.color || 'primary'"
+                variant="outlined"
+                hide-details="auto"
+                label="Deposit fee"
+                append-icon="mdi-currency-usd"
+                v-model="$props.request.fee!.total"
+                :hint="`Deposit paid.`"
+              />
             </v-col>
           </v-row>
         </div>
       </v-card>
+    </template>
+    <template #btn-action v-if="AuthenticationApiProvider.isAuthenticated() && UserApiProvider.isAdmin()">
+      <v-btn append-icon="mdi-brush" variant="outlined" color="primary">Update this request</v-btn>
+      <v-btn append-icon="mdi-trash-can" variant="outlined" color="error">Delete this request</v-btn>
     </template>
   </custom-dialog>
 </template>
@@ -90,8 +171,10 @@ export default defineComponent({
 .dot {
   width: 10px;
   height: 10px;
-  padding: 8px;
+  padding: 10px;
   border-radius: 50px;
-  margin-right: 5px;
+  margin: 0 auto;
+  opacity: 0.8;
+  border: solid 2px white;
 }
 </style>

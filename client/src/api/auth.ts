@@ -48,8 +48,4 @@ export class AuthenticationApiProvider {
     sessionStorage.removeItem('vedaUserRole');
     localStorage.removeItem('vedaAccessToken');
   }
-
-  isUser() {
-    return false;
-  }
 }

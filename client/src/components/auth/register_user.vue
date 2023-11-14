@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { UserApiProvider } from '@/api/users';
+import { AuthenticationApiProvider } from '@/api/auth';
 import { onMounted, ref, defineComponent } from 'vue';
 import RegisterForm from './register_form.vue';
 
 const isAdminUser = ref<boolean>(false);
 const isLoading = ref<boolean>(false);
-const user = new UserApiProvider();
 
 onMounted(async () => {
   isLoading.value = true;
-  if (UserApiProvider.isAuthenticated()) {
-    isAdminUser.value = await user.isAdmin();
+  if (AuthenticationApiProvider.isAuthenticated()) {
+    isAdminUser.value = UserApiProvider.isAdmin();
     console.log('isAdminUser', isAdminUser.value);
   }
   isLoading.value = false;

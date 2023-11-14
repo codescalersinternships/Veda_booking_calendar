@@ -115,6 +115,8 @@ const onSelect = async (arg: DateSelectArg) => {
       endStr: dates.endStr,
       boat: boatData,
       calendar: calendar,
+      companyName: '',
+      contactPerson: '',
     };
 
     request.value = _request;
@@ -155,6 +157,8 @@ const updateRequest = async (_request: RequestAPIData) => {
   _request.requestStatusColor = BookingStatusColor.Request;
 
   request.value = _request;
+  console.log('request', request.value);
+
   requestAPIProvider.post(_request);
 
   if (request.value.calendar) {
@@ -170,7 +174,7 @@ const resetRequest = () => {
 };
 
 const normalizeRequestTitle = (request: RequestAPIData) => {
-  return `${capitalize(request.boat.title)} | ${capitalize(request.status)}`;
+  return `${capitalize(request.boat.title || 'Boat')} | ${capitalize(request.status)}`;
 };
 
 watch(
