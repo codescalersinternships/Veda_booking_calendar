@@ -16,6 +16,7 @@ import BoatsProvider from '@/api/boats';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
 import { UserApiProvider } from '@/api/users';
+import { AuthenticationApiProvider } from '@/api/auth';
 
 const boatAPIProvider = new BoatsProvider();
 const requestAPIProvider = new RequestBoatAPIProvider();
@@ -34,7 +35,12 @@ const boats = ref<BoatApiData[]>([]);
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
   isLoading.value = true;
-  userAPIProvider.getRequestedUser();
+  const user = await userAPIProvider.getRequestedUser();
+  if (user.status === 401) {
+    // Unauthorized user, user should login again.
+    AuthenticationApiProvider.logout();
+  }
+
   const loadRequests = await requestAPIProvider.all();
   const loadBoats = await boatAPIProvider.all();
   requests.value = loadRequests;

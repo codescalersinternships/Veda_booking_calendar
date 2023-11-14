@@ -37,7 +37,6 @@ import NewBoat from '@/components/boats/new_boat.vue';
 import { AuthenticationApiProvider } from '@/api/auth';
 
 const displayNewBoat = ref<boolean>(false);
-const auth = new AuthenticationApiProvider();
 
 type Route = {
   title: string;
@@ -49,7 +48,7 @@ const routes: Route[] = [
   {
     title: 'Logout',
     onClick: () => {
-      auth.logout();
+      AuthenticationApiProvider.logout();
       router.push('/login');
     },
   },
