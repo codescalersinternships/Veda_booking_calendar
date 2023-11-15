@@ -4,6 +4,12 @@ export const defineBoatTable = (sequelize: Sequelize) => {
   return sequelize.define(
     'boats',
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+      },
       title: {
         type: DataTypes.STRING,
         allowNull: false,

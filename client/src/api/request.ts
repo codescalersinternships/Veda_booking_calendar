@@ -4,9 +4,8 @@ import http from './axios';
 
 export default class RequestBoatAPIProvider {
   static async put(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
+    console.log('Put', _request);
     try {
-      console.log('Put', _request);
-
       const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.put(
         import.meta.env.VITE_SERVER_DOMAIN + `api/requests/${_request.id}/`,
         _request,

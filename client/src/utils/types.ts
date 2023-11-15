@@ -1,5 +1,3 @@
-import { CalendarApi } from '@fullcalendar/core';
-
 export type BoatApiData = {
   id?: number;
   title?: string;
@@ -14,7 +12,8 @@ export type RequestPaymentFee = {
 };
 
 export type RequestAPIData = {
-  id: number;
+  id: string;
+  boatId: number;
   boat: BoatApiData;
   end: Date;
   endStr: string;
@@ -22,7 +21,6 @@ export type RequestAPIData = {
   startStr: string;
   companyName: string;
   contactPerson: string;
-  calendar?: CalendarApi;
   status: BookingStatus;
   requestStatusColor: BookingStatusColor;
   fee?: RequestPaymentFee;

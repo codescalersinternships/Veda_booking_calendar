@@ -62,7 +62,7 @@ export class RequestController {
       }
       return res.status(404).send({ message: `Record not found.`, status: 404 });
     } catch (error) {
-      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
+      return res.status(400).send({ message: `Error while getting request due: ${error}`, status: 400 });
     }
   }
   /**
@@ -80,15 +80,14 @@ export class RequestController {
       for (const request of requests) {
         const boat = await Boat.findOne({
           where: {
-            id: request.boat,
+            id: request.boatId,
           },
         });
-
-        request.boat = boat;
+        request.dataValues.boat = boat;
       }
       return res.status(200).send({ data: requests, message: 'Success response.', status: 200 });
     } catch (error) {
-      return res.status(400).send({ message: `Error while getting requests due:`, status: 400 });
+      return res.status(400).send({ message: `Error while getting requests due: ${error}`, status: 400 });
     }
   }
   /**

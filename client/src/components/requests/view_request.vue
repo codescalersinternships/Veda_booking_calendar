@@ -29,14 +29,10 @@ const items = ref<string[]>([
 ]);
 
 const item = ref<string>(capitalize(props.request.status.replaceAll('_', ' ')));
-console.log('props.request.status', props.request.status);
 
 const handleStatus = (value: string) => {
   item.value = capitalize(value.replaceAll('_', ' '));
   emit('update:statusColor', value);
-  console.log(item.value);
-  console.log(props.request);
-  // console.log('value', value);
 };
 </script>
 
@@ -44,17 +40,17 @@ const handleStatus = (value: string) => {
   <custom-dialog
     :title="`View ${capitalize(request.boat.title || '')} Request`"
     :modelValue="isOpen"
-    :header-color="isEdit ? request.boat.color : 'primary'"
+    :header-color="request.boat.color"
     width="600"
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card variant="outlined" :color="isEdit ? request.boat.color : 'primary'" class="pa-4">
+      <v-card variant="outlined" :color="request.boat.color" class="pa-4">
         <div class="mt-5">
           <v-text-field
-            :color="!isEdit ? request.boat.color : 'primary'"
-            :item-color="isEdit ? request.boat.color : 'primary'"
-            :base-color="isEdit ? request.boat.color : 'primary'"
+            :color="request.boat.color"
+            :item-color="request.boat.color"
+            :base-color="request.boat.color"
             variant="outlined"
             hide-details="auto"
             append-icon="mdi-calendar"
@@ -67,9 +63,9 @@ const handleStatus = (value: string) => {
 
         <div class="mt-5">
           <v-text-field
-            :color="isEdit ? request.boat.color : 'primary'"
-            :item-color="isEdit ? request.boat.color : 'primary'"
-            :base-color="isEdit ? request.boat.color : 'primary'"
+            :color="request.boat.color"
+            :item-color="request.boat.color"
+            :base-color="request.boat.color"
             v-model="$props.request.endStr"
             variant="outlined"
             hide-details="auto"
@@ -90,9 +86,9 @@ const handleStatus = (value: string) => {
 
         <div class="mt-5">
           <v-text-field
-            :item-color="isEdit ? request.boat.color : 'primary'"
-            :base-color="isEdit ? request.boat.color : 'primary'"
-            :color="isEdit ? request.boat.color : 'primary'"
+            :item-color="request.boat.color"
+            :base-color="request.boat.color"
+            :color="request.boat.color"
             variant="outlined"
             label="Company Name"
             v-model="$props.request.companyName"
@@ -105,9 +101,9 @@ const handleStatus = (value: string) => {
 
         <div class="mt-5">
           <v-text-field
-            :item-color="isEdit ? request.boat.color : 'primary'"
-            :base-color="isEdit ? request.boat.color : 'primary'"
-            :color="isEdit ? request.boat.color : 'primary'"
+            :item-color="request.boat.color"
+            :base-color="request.boat.color"
+            :color="request.boat.color"
             variant="outlined"
             hide-details="auto"
             label="Contact Person"
@@ -116,16 +112,16 @@ const handleStatus = (value: string) => {
             :hint="`The reservation company/person contact details.`"
           >
             <template v-slot:append>
-              <v-icon :color="isEdit ? request.boat.color : 'primary'">mdi-account-box-outline</v-icon>
+              <v-icon :color="request.boat.color">mdi-account-box-outline</v-icon>
             </template>
           </v-text-field>
         </div>
 
         <div class="mt-5">
           <v-select
-            :item-color="isEdit ? request.boat.color : 'primary'"
-            :base-color="isEdit ? request.boat.color : 'primary'"
-            :color="isEdit ? request.boat.color : 'primary'"
+            :item-color="request.boat.color"
+            :base-color="request.boat.color"
+            :color="request.boat.color"
             variant="outlined"
             :items="items"
             hide-details="auto"
@@ -146,9 +142,9 @@ const handleStatus = (value: string) => {
           <v-row>
             <v-col>
               <v-text-field
-                :item-color="isEdit ? request.boat.color : 'primary'"
-                :base-color="isEdit ? request.boat.color : 'primary'"
-                :color="isEdit ? request.boat.color : 'primary'"
+                :item-color="request.boat.color"
+                :base-color="request.boat.color"
+                :color="request.boat.color"
                 variant="outlined"
                 hide-details="auto"
                 label="Total fee"
@@ -159,9 +155,9 @@ const handleStatus = (value: string) => {
 
             <v-col>
               <v-text-field
-                :item-color="isEdit ? request.boat.color : 'primary'"
-                :base-color="isEdit ? request.boat.color : 'primary'"
-                :color="isEdit ? request.boat.color : 'primary'"
+                :item-color="request.boat.color"
+                :base-color="request.boat.color"
+                :color="request.boat.color"
                 variant="outlined"
                 hide-details="auto"
                 label="Deposit fee"

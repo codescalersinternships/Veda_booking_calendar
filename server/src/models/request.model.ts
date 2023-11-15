@@ -5,12 +5,22 @@ export const defineRequestTable = (sequelize: Sequelize) => {
   return sequelize.define(
     'requests',
     {
-      boat: {
-        type: DataTypes.INTEGER,
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+        primaryKey: true,
+      },
+      boatId: {
+        type: DataTypes.UUID,
         allowNull: false,
         references: { model: 'boats', key: 'id' },
-        validate: { isNumeric: true },
       },
+      // boat: {
+      //   type: DataTypes.JSON,
+      //   allowNull: false,
+      //   references: { model: 'boats', key: 'id' },
+      // },
       end: {
         type: DataTypes.DATE,
         allowNull: false,

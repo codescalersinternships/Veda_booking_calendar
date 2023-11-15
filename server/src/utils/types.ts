@@ -25,9 +25,18 @@ export type SignupBody = {
   lastName: string;
 };
 
+export type BoatApiData = {
+  id?: number;
+  title?: string;
+  description?: string;
+  color: string;
+  isAvailable: boolean;
+};
+
 export type RequestBody = {
-  id: number;
-  boat: number;
+  id?: number;
+  boat: BoatApiData;
+  boatId: number;
   start: Date;
   startStr?: string;
   end: Date;
