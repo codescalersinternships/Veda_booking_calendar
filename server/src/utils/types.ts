@@ -26,9 +26,12 @@ export type SignupBody = {
 };
 
 export type RequestBody = {
+  id: number;
   boat: number;
   start: Date;
+  startStr?: string;
   end: Date;
+  endStr?: string;
   status: BookingStatus;
 };
 

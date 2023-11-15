@@ -29,7 +29,7 @@ export class BoatController {
         console.log('request', request);
 
         if (request) {
-          return res.status(201).send({ data: request, message: 'Success requested.', status: 201 });
+          return res.status(201).send({ data: request, message: 'Success Added New Boat.', status: 201 });
         }
         return res.status(400).send({ message: `Error while posting a new boat due:`, status: 400 });
       }
@@ -56,7 +56,7 @@ export class BoatController {
       });
 
       if (boat) {
-        return res.status(200).send({ data: boat, message: 'Success response.', status: 201 });
+        return res.status(200).send({ data: boat, message: 'Success response.', status: 200 });
       }
       return res.status(404).send({ message: `Record not found.`, status: 404 });
     } catch (error) {
@@ -75,7 +75,7 @@ export class BoatController {
   ): Promise<Response<ResponseType<any>, Record<string, any>>> {
     try {
       const boat = (await Boat.findAll()) || [];
-      return res.status(200).send({ data: boat, message: 'Success response.', status: 201 });
+      return res.status(200).send({ data: boat, message: 'Success response.', status: 200 });
     } catch (error) {
       return res.status(400).send({ message: `Error while getting boats due:`, status: 400 });
     }

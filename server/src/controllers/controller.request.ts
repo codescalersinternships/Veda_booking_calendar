@@ -3,6 +3,7 @@ import { db } from '../models';
 import { ResponseType, RequestBody, BookingStatus } from '../utils/types';
 
 const Request: any = db.requests;
+const Boat: any = db.boats;
 
 /**
  * Controller class handling request-related operations like request and cancel request.
@@ -28,7 +29,6 @@ export class RequestController {
       } else if (!data.end) {
         return res.status(400).send({ message: 'End-Date is required.', status: 400 });
       } else {
-        data.status = BookingStatus.NotSet;
         const request = await Request.create(data);
         if (request) {
           return res.status(201).send({ data: request, message: 'Success requested.', status: 201 });
@@ -58,7 +58,66 @@ export class RequestController {
       });
 
       if (request) {
-        return res.status(201).send({ data: request, message: 'Success response.', status: 201 });
+        return res.status(201).send({ data: request, message: 'Success response.', status: 200 });
+      }
+      return res.status(404).send({ message: `Record not found.`, status: 404 });
+    } catch (error) {
+      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
+    }
+  }
+  /**
+   * Handles all requests.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async all(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const requests = (await Request.findAll()) || [];
+      for (const request of requests) {
+        const boat = await Boat.findOne({
+          where: {
+            id: request.boat,
+          },
+        });
+
+        request.boat = boat;
+      }
+      return res.status(200).send({ data: requests, message: 'Success response.', status: 200 });
+    } catch (error) {
+      return res.status(400).send({ message: `Error while getting requests due:`, status: 400 });
+    }
+  }
+  /**
+   * Handles update request.
+   * @param req The HTTP request object.
+   * @param res The HTTP response object.
+   * @returns A Promise representing the HTTP response.
+   */
+  static async put(
+    req: Request,
+    res: Response<ResponseType>,
+  ): Promise<Response<ResponseType<any>, Record<string, any>>> {
+    try {
+      const data: RequestBody = req.body;
+      const start = new Date(data.startStr!);
+      const end = new Date(data.endStr!);
+
+      data.start = start;
+      data.end = end;
+
+      const request = await Request.update(data, {
+        returning: true,
+        where: {
+          id: req.params.requestId,
+        },
+      });
+
+      if (request) {
+        return res.status(201).send({ data: request, message: 'Success response.', status: 200 });
       }
       return res.status(404).send({ message: `Record not found.`, status: 404 });
     } catch (error) {

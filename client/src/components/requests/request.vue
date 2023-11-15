@@ -1,32 +1,11 @@
 <script lang="ts" setup>
-import { PropType, defineComponent, ref, watch } from 'vue';
+import { PropType, defineComponent } from 'vue';
 import { BoatApiData, RequestAPIData } from '@/utils/types';
 import customDialog from '@/components/ui/custom_dialog.vue';
-import BoatsApiProvider from '@/api/boats';
 import { AuthenticationApiProvider } from '@/api/auth';
+import SelectBoat from '../boats/select_boat.vue';
 
 const emit = defineEmits(['close-dialog', 'update:request', 'update:select-boat']);
-const isLoadingBoats = ref<boolean>();
-const boats = ref<BoatApiData[]>([]);
-
-const isErrorLoadingBoats = ref<boolean>();
-const errorMessage = ref<string>();
-
-const loadBoats = async () => {
-  isLoadingBoats.value = true;
-  errorMessage.value = undefined;
-  isErrorLoadingBoats.value = false;
-  if (AuthenticationApiProvider.isAuthenticated()) {
-    const response = await BoatsApiProvider.all();
-    if (response.isError) {
-      errorMessage.value = response.message;
-      isErrorLoadingBoats.value = response.isError;
-    } else {
-      boats.value = response.data!;
-    }
-  }
-  isLoadingBoats.value = false;
-};
 
 const props = defineProps({
   isOpen: {
@@ -37,42 +16,17 @@ const props = defineProps({
     type: Object as PropType<RequestAPIData>,
     required: true,
   },
-  selectedboat: {
+  selectedBoat: {
     type: Object as PropType<BoatApiData>,
     required: false,
   },
 });
 
-watch(
-  props,
-  async () => {
-    if (
-      props.isOpen &&
-      props.request.boat.id === 0 &&
-      props.request.companyName.length === 0 &&
-      props.request.contactPerson.length === 0
-    ) {
-      // That means the modal dialog is opened for the first time, we need to do do this condition to avoid making multiple requests to the backend.
-      await loadBoats();
-    }
-  },
-  { deep: true },
-);
-
-const isLoadingCheckAvilable = ref<boolean>(false);
-const checkAvailability = (selectedItem: string) => {
-  emit('update:select-boat', selectedItem);
-  isLoadingCheckAvilable.value = true;
-  setTimeout(() => {
-    isLoadingCheckAvilable.value = false;
-  }, 2000);
-};
-
 const isBookButtonDisabled = () => {
   return (
     props.request.boat.title === undefined ||
     props.request.boat.title.length === 0 ||
-    isLoadingCheckAvilable.value ||
+    // isLoadingCheckAvilable.value ||
     !props.request.boat.isAvailable ||
     props.request.contactPerson === undefined ||
     props.request.contactPerson.length === 0 ||
@@ -126,55 +80,13 @@ const isBookButtonDisabled = () => {
               </template>
             </v-text-field>
           </div>
-          <v-select
-            class="mt-4"
-            variant="outlined"
-            hide-details
-            label="Boat"
-            :items="boats"
-            @update:model-value="checkAvailability"
-            :disabled="isLoadingBoats || isLoadingCheckAvilable"
-            :messages="'This is a meesage'"
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
-            :color="request.boat.color || 'primary'"
-            :loading="isLoadingBoats || isLoadingCheckAvilable"
-          >
-            <template v-slot:append>
-              <v-icon :color="request.boat.color || 'primary'">mdi-ferry</v-icon>
-            </template>
-          </v-select>
 
-          <div v-if="isLoadingCheckAvilable" class="check-available pt-1 d-flex justify-space-between align-center">
-            <small class="text-grey-darken-3 ml-1 mt-0 pt-0">
-              Checking the availability of the {{ $props.request.boat.title?.toLocaleUpperCase() }} boat...
-            </small>
-          </div>
-
-          <v-alert v-if="isErrorLoadingBoats" type="error" variant="tonal" class="mt-3">{{ errorMessage }}</v-alert>
-
-          <div
-            v-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && request.boat.isAvailable"
-            class="check-available pt-1 d-flex justify-space-between align-center"
-          >
-            <small>
-              <strong class="text-green-darken-1 ml-1 mt-0 pt-0">
-                {{ $props.request.boat.title }} is available.
-              </strong>
-            </small>
-            <v-icon icon="mdi-checkbox-marked-circle-outline" color="green-lighten-1" />
-          </div>
-
-          <div
-            v-else-if="$props.selectedboat?.id != 0 && !isLoadingCheckAvilable && !request.boat.isAvailable"
-            class="check-available pt-1 d-flex justify-space-between align-center"
-          >
-            <small>
-              <strong class="text-red-lighten-2 ml-1 mt-0 pt-0"
-                >{{ $props.request.boat.title }} is not available.</strong
-              >
-            </small>
-            <v-icon icon="mdi-close-circle-outline" color="red-lighten-3" />
+          <div class="mt-3">
+            <select-boat
+              :readonly="undefined"
+              :request="request"
+              @update:select-boat="(selectedItem: string) => emit('update:select-boat', selectedItem)"
+            />
           </div>
 
           <div class="mt-3">
@@ -222,11 +134,11 @@ const isBookButtonDisabled = () => {
     </template>
 
     <template #btn-action>
+      <!-- :loading="isLoadingCheckAvilable" -->
       <v-btn
         v-if="AuthenticationApiProvider.isAuthenticated()"
         :disabled="isBookButtonDisabled()"
         text="Book"
-        :loading="isLoadingCheckAvilable"
         variant="outlined"
         :color="request.boat.color || 'primary'"
         @click="emit('update:request', request)"

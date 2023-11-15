@@ -5,9 +5,20 @@ import { config } from '../config/config';
 
 // Middleware to check for a valid token
 export const authenticateToken = (req: Request, res: Response<ResponseType>, next: NextFunction) => {
-  const authRoutes = ['signin', 'signup'];
+  console.log(`Request: ${req.method} -> ${req.url}`);
 
-  if (!authRoutes.includes(req.url.split('/')[authRoutes.length + 1])) {
+  const authRoutes = ['signin', 'signup', 'requests'];
+  const parts = req.url.split('/');
+  let authorizedRoute = false;
+
+  for (const part of parts) {
+    if (authRoutes.includes(part)) {
+      authorizedRoute = true;
+    }
+  }
+
+  console.log('authorizedRoute', authorizedRoute);
+  if (!authorizedRoute) {
     const token = req.headers.authorization;
 
     if (!token) {

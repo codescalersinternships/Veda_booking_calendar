@@ -29,6 +29,22 @@ export const defineRequestTable = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      companyName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      contactPerson: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      totalFee: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      depositFee: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       status: {
         type: DataTypes.ENUM,
         defaultValue: BookingStatus.NotSet,

@@ -11,10 +11,12 @@ export const handelDates = (dates: CalendarDates): CalendarDates => {
     endDate.setDate(endDate.getDate() + 1);
   }
 
-  const endStr = `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`;
-  const startStr = `${dates.start!.getFullYear()}-${dates.start!.getMonth() + 1}-${dates.start!.getDate()}`;
-
   dates.end = endDate;
+  dates.start = new Date(dates.start);
+
+  const endStr = `${endDate.getFullYear()}-${endDate.getMonth() + 1}-${endDate.getDate()}`;
+  const startStr = `${dates.start.getFullYear()}-${dates.start.getMonth() + 1}-${dates.start.getDate()}`;
+
   // dates.start = dates.start;
   dates.endStr = endStr;
   dates.startStr = startStr;

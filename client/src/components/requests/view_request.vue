@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { PropType, defineComponent, capitalize } from 'vue';
+import { PropType, defineComponent, capitalize, ref } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { BookingStatus, RequestAPIData } from '@/utils/types';
 import { AuthenticationApiProvider } from '@/api/auth';
 import { UserApiProvider } from '@/api/users';
+import SelectBoat from '../boats/select_boat.vue';
 
-const emit = defineEmits(['close-dialog']);
+const emit = defineEmits(['close-dialog', 'update:statusColor', 'update:select-boat', 'update:request']);
 
-defineProps({
+const props = defineProps({
   isOpen: {
     type: Boolean,
     required: true,
@@ -17,28 +18,48 @@ defineProps({
     required: true,
   },
 });
+
+const isEdit = ref<boolean | undefined>(true);
+
+const items = ref<string[]>([
+  capitalize(BookingStatus.NotSet).replaceAll('_', ' '),
+  capitalize(BookingStatus.Request).replaceAll('_', ' '),
+  capitalize(BookingStatus.Tentative).replaceAll('_', ' '),
+  capitalize(BookingStatus.Deposit).replaceAll('_', ' '),
+]);
+
+const item = ref<string>(capitalize(props.request.status.replaceAll('_', ' ')));
+console.log('props.request.status', props.request.status);
+
+const handleStatus = (value: string) => {
+  item.value = capitalize(value.replaceAll('_', ' '));
+  emit('update:statusColor', value);
+  console.log(item.value);
+  console.log(props.request);
+  // console.log('value', value);
+};
 </script>
 
 <template>
   <custom-dialog
     :title="`View ${capitalize(request.boat.title || '')} Request`"
     :modelValue="isOpen"
-    :header-color="request.boat.color || 'primary'"
+    :header-color="isEdit ? request.boat.color : 'primary'"
     width="600"
     @close-dialog="(closed: boolean) => emit('close-dialog', closed)"
   >
     <template #body>
-      <v-card variant="outlined" :color="request.boat.color || 'primary'" class="pa-4">
+      <v-card variant="outlined" :color="isEdit ? request.boat.color : 'primary'" class="pa-4">
         <div class="mt-5">
           <v-text-field
-            :color="request.boat.color || 'primary'"
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
+            :color="!isEdit ? request.boat.color : 'primary'"
+            :item-color="isEdit ? request.boat.color : 'primary'"
+            :base-color="isEdit ? request.boat.color : 'primary'"
             variant="outlined"
             hide-details="auto"
             append-icon="mdi-calendar"
             label="From"
-            :readonly="true"
+            :readonly="isEdit"
             v-model="$props.request.startStr"
             hint="Request start date, usually selected from the calendar."
           />
@@ -46,90 +67,88 @@ defineProps({
 
         <div class="mt-5">
           <v-text-field
-            :color="request.boat.color || 'primary'"
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
+            :color="isEdit ? request.boat.color : 'primary'"
+            :item-color="isEdit ? request.boat.color : 'primary'"
+            :base-color="isEdit ? request.boat.color : 'primary'"
             v-model="$props.request.endStr"
             variant="outlined"
             hide-details="auto"
             append-icon="mdi-calendar"
-            :readonly="true"
+            :readonly="isEdit"
             label="To"
             hint="Request end date, usually selected from the calendar."
           />
         </div>
 
-        <v-select
-          :item-color="request.boat.color || 'primary'"
-          :base-color="request.boat.color || 'primary'"
-          :color="request.boat.color || 'primary'"
-          class="mt-5"
-          variant="outlined"
-          hide-details="auto"
-          append-icon="mdi-ferry"
-          label="Boat"
-          :readonly="true"
-          :model-value="request.boat.title"
-          :bg-color="'blue-lighten-5'"
-          :hint="`This request on ${request.boat.title} boat.`"
-        />
+        <div class="mt-5">
+          <select-boat
+            :readonly="isEdit"
+            :request="request"
+            @update:select-boat="(selectedItem: string) => emit('update:select-boat', selectedItem)"
+          />
+        </div>
 
         <div class="mt-5">
           <v-text-field
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
-            :color="request.boat.color || 'primary'"
+            :item-color="isEdit ? request.boat.color : 'primary'"
+            :base-color="isEdit ? request.boat.color : 'primary'"
+            :color="isEdit ? request.boat.color : 'primary'"
             variant="outlined"
             label="Company Name"
             v-model="$props.request.companyName"
             hide-details="auto"
             append-icon="mdi-domain"
-            :readonly="true"
+            :readonly="isEdit"
             hint="The company/person of the reservation."
           />
         </div>
 
         <div class="mt-5">
           <v-text-field
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
-            :color="request.boat.color || 'primary'"
+            :item-color="isEdit ? request.boat.color : 'primary'"
+            :base-color="isEdit ? request.boat.color : 'primary'"
+            :color="isEdit ? request.boat.color : 'primary'"
             variant="outlined"
             hide-details="auto"
             label="Contact Person"
+            :readonly="isEdit"
             v-model="$props.request.contactPerson"
             :hint="`The reservation company/person contact details.`"
           >
             <template v-slot:append>
-              <v-icon :color="request.boat.color || 'primary'">mdi-account-box-outline</v-icon>
+              <v-icon :color="isEdit ? request.boat.color : 'primary'">mdi-account-box-outline</v-icon>
             </template>
           </v-text-field>
         </div>
 
         <div class="mt-5">
-          <v-text-field
-            :item-color="request.boat.color || 'primary'"
-            :base-color="request.boat.color || 'primary'"
-            :color="request.boat.color || 'primary'"
+          <v-select
+            :item-color="isEdit ? request.boat.color : 'primary'"
+            :base-color="isEdit ? request.boat.color : 'primary'"
+            :color="isEdit ? request.boat.color : 'primary'"
             variant="outlined"
+            :items="items"
             hide-details="auto"
             label="Request Status"
-            :model-value="capitalize(request.status)"
-            :hint="`Request status`"
+            :readonly="isEdit"
+            @update:model-value="handleStatus"
+            :model-value="item"
+            :bg-color="'blue-lighten-5'"
+            :hint="`This request has (${capitalize(request.status.replaceAll('_', ' '))}) status.`"
           >
             <template v-slot:append>
               <div class="dot" :style="{ backgroundColor: request.requestStatusColor }"></div>
             </template>
-          </v-text-field>
+          </v-select>
         </div>
 
-        <div class="mt-5" v-if="request.status === BookingStatus.deposit">
+        <div class="mt-5" v-if="request.status === BookingStatus.Deposit && request.fee">
           <v-row>
             <v-col>
               <v-text-field
-                :item-color="request.boat.color || 'primary'"
-                :base-color="request.boat.color || 'primary'"
-                :color="request.boat.color || 'primary'"
+                :item-color="isEdit ? request.boat.color : 'primary'"
+                :base-color="isEdit ? request.boat.color : 'primary'"
+                :color="isEdit ? request.boat.color : 'primary'"
                 variant="outlined"
                 hide-details="auto"
                 label="Total fee"
@@ -137,11 +156,12 @@ defineProps({
                 :hint="`Total reservation amount.`"
               />
             </v-col>
+
             <v-col>
               <v-text-field
-                :item-color="request.boat.color || 'primary'"
-                :base-color="request.boat.color || 'primary'"
-                :color="request.boat.color || 'primary'"
+                :item-color="isEdit ? request.boat.color : 'primary'"
+                :base-color="isEdit ? request.boat.color : 'primary'"
+                :color="isEdit ? request.boat.color : 'primary'"
                 variant="outlined"
                 hide-details="auto"
                 label="Deposit fee"
@@ -152,10 +172,33 @@ defineProps({
             </v-col>
           </v-row>
         </div>
+        <div class="mt-5" v-if="!isEdit">
+          <v-row>
+            <v-btn
+              class="ma-3"
+              @click="
+                () => {
+                  isEdit = false;
+                  emit('update:request', request, true);
+                }
+              "
+              append-icon="mdi-brush"
+              variant="outlined"
+              color="primary"
+            >
+              Update
+            </v-btn>
+            <v-btn class="mt-3" @click="isEdit = true" append-icon="mdi-cancel" variant="outlined" color="error">
+              Cancel
+            </v-btn>
+          </v-row>
+        </div>
       </v-card>
     </template>
     <template #btn-action v-if="AuthenticationApiProvider.isAuthenticated() && UserApiProvider.isAdmin()">
-      <v-btn append-icon="mdi-brush" variant="outlined" color="primary">Update this request</v-btn>
+      <v-btn v-if="isEdit" append-icon="mdi-brush" variant="outlined" color="primary" @click="isEdit = undefined">
+        Update this request
+      </v-btn>
       <v-btn append-icon="mdi-trash-can" variant="outlined" color="error">Delete this request</v-btn>
     </template>
   </custom-dialog>

@@ -5,7 +5,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { CalendarOptions, DateSelectArg, EventClickArg, EventInput } from '@fullcalendar/core';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-
 import { onMounted, reactive, ref, watch, capitalize } from 'vue';
 
 import ViewRequest from '@/components/requests/view_request.vue';
@@ -18,11 +17,11 @@ import { UserApiProvider } from '@/api/users';
 import { AuthenticationApiProvider } from '@/api/auth';
 import BoatsApiProvider from '@/api/boats';
 
-const requestAPIProvider = new RequestBoatAPIProvider();
 const userAPIProvider = new UserApiProvider();
 
 const isLoading = ref<boolean>(false);
 const isPostRequest = ref<boolean>(false);
+const refreshBoats = ref<boolean>(true);
 const isViewRequest = ref<boolean>(false);
 
 const request = ref<RequestAPIData>(requestData);
@@ -44,40 +43,82 @@ onMounted(async () => {
     boats.value = loadBoats.data!;
   }
 
-  const loadRequests = await requestAPIProvider.all();
-  requests.value = loadRequests;
-  if (options.events) {
-    for (const _request of requests.value) {
-      const dates = handelDates({
-        end: _request.end,
-        start: _request.start,
-        endStr: _request.endStr,
-        startStr: _request.startStr,
-        add: true,
-      });
+  const loadRequests = await RequestBoatAPIProvider.all();
+  const requestsData = loadRequests.data!;
 
-      options.events.push({
-        id: _request.id,
-        title: normalizeRequestTitle(_request),
-        start: dates.start,
-        end: dates.end,
-        startStr: dates.startStr,
-        endStr: dates.endStr,
-        color: _request.boat.color,
-        boat: _request.boat,
-      });
-    }
+  for (const __request of requestsData) {
+    const dates = handelDates({
+      end: __request.end,
+      start: __request.start,
+      endStr: __request.endStr,
+      startStr: __request.startStr,
+      add: true,
+    });
+
+    const event = {
+      title: normalizeRequestTitle(__request),
+      color: __request.boat.color,
+      start: dates.start,
+      startStr: dates.startStr,
+      endStr: dates.endStr,
+      end: dates.end,
+      backgroundColor: __request.boat.color,
+      boat: __request.boat,
+      id: __request.id,
+      allDay: true,
+      duration: '02:00',
+    };
+
+    options.events = [...options.events, event];
   }
 
+  requests.value = requestsData;
   isLoading.value = false;
 });
 
-const onClick = async (arg: EventClickArg) => {
-  const _request = await requestAPIProvider.get(+arg.event.id);
-  request.value = _request;
-  isViewRequest.value = true;
-  document.querySelector('.fc-popover')?.classList.add('d-none');
+const setRequestStatus = (status: string): BookingStatus => {
+  switch (status) {
+    case BookingStatus.Request:
+      return BookingStatus.Request;
+    case BookingStatus.Tentative:
+      return BookingStatus.Tentative;
+    case BookingStatus.Deposit:
+      return BookingStatus.Deposit;
+    default:
+      return BookingStatus.NotSet;
+  }
 };
+
+const updateRequestStatus = (status: string) => {
+  status = status.toLocaleLowerCase().replaceAll(' ', '_');
+  console.log('setRequestStatus(status)', setRequestStatus(status));
+  request.value.status = setRequestStatus(status);
+  console.log('request.value.status', request.value.status);
+
+  request.value.requestStatusColor = setRequestBackground(request.value);
+  console.log('request.value', request.value);
+};
+
+const setRequestBackground = (request: RequestAPIData): BookingStatusColor => {
+  switch (request.status) {
+    case BookingStatus.Request:
+      return BookingStatusColor.Request;
+    case BookingStatus.Tentative:
+      return BookingStatusColor.Tentative;
+    case BookingStatus.Deposit:
+      return BookingStatusColor.Deposit;
+    default:
+      return BookingStatusColor.NotSet;
+  }
+};
+
+const onClick = async (arg: EventClickArg) => {
+  const __request = requests.value.filter(request => request.id === +arg.event.id)[0];
+  __request.requestStatusColor = setRequestBackground(__request);
+  request.value = __request;
+  isViewRequest.value = true;
+};
+
 const validateDate = (startDate: Date) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set the time to midnight for accurate comparison
@@ -95,8 +136,6 @@ const onSelect = async (arg: DateSelectArg) => {
   const validated: boolean = validateDate(arg.start);
 
   if (validated) {
-    arg.view.type = 'disabled';
-    // console.log(calendar.off());
     const dates = handelDates({
       end: arg.end,
       start: arg.start,
@@ -145,21 +184,33 @@ const options = reactive<CalendarOptions>({
 });
 
 const onSelectBoat = async (boatName: string) => {
-  const loadBoats = await BoatsApiProvider.all();
-  boats.value = loadBoats.data!;
   const thisBoat = boats.value.filter(boat => boat.title === boatName);
   request.value.boat = thisBoat[0];
   boat.value = request.value.boat;
 };
 
-const updateRequest = async (_request: RequestAPIData) => {
-  _request.status = BookingStatus.Request;
-  _request.requestStatusColor = BookingStatusColor.Request;
+const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
+  const request_: RequestAPIData = {
+    boat: request.value.boat.id as unknown as BoatApiData,
+    companyName: request.value.companyName,
+    contactPerson: request.value.contactPerson,
+    end: request.value.end,
+    endStr: request.value.endStr,
+    start: request.value.start,
+    startStr: request.value.startStr,
+    status: request.value.status,
+    id: request.value.id,
+    requestStatusColor: request.value.requestStatusColor,
+  };
+
+  if (update) {
+    RequestBoatAPIProvider.put(request_);
+  } else {
+    RequestBoatAPIProvider.post(request_);
+  }
 
   request.value = _request;
-  console.log('request', request.value);
-
-  requestAPIProvider.post(_request);
+  requests.value.push(request.value);
 
   if (request.value.calendar) {
     request.value.calendar.addEvent(request);
@@ -174,7 +225,7 @@ const resetRequest = () => {
 };
 
 const normalizeRequestTitle = (request: RequestAPIData) => {
-  return `${capitalize(request.boat.title || 'Boat')} | ${capitalize(request.status)}`;
+  return `${capitalize(request.boat.title || 'Boat')} | ${capitalize(request.status.replace('_', ' '))}`;
 };
 
 watch(
@@ -205,6 +256,7 @@ watch(
 
       request.value.calendar.addEvent(event as unknown as EventInput);
       options.events = [...options.events, event];
+
       resetRequest();
     }
   },
@@ -226,7 +278,15 @@ watch(
     </div>
 
     <!-- Boat details -->
-    <view-request @close-dialog="isViewRequest = false" :is-open="isViewRequest" :request="request" />
+    <view-request
+      v-if="isViewRequest"
+      @update:status-color="updateRequestStatus"
+      @close-dialog="isViewRequest = false"
+      @update:select-boat="onSelectBoat"
+      @update:request="updateRequest"
+      :is-open="isViewRequest"
+      :request="request"
+    />
 
     <!-- reserve new boat -->
     <new-request
@@ -240,7 +300,7 @@ watch(
       @update:request="updateRequest"
       :is-open="isPostRequest"
       :request="request"
-      :selectedboat="boat"
+      :selectedBoat="boat"
     />
   </v-container>
 </template>
