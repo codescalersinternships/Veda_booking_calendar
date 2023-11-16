@@ -9,7 +9,7 @@ import { onMounted, reactive, ref, capitalize } from 'vue';
 
 import ViewRequest from '@/components/requests/view_request.vue';
 import NewRequest from '@/components/requests/request.vue';
-import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData } from '@/utils/types';
+import { BoatApiData, BookingStatus, BookingStatusColor, RequestAPIData, RequestPaymentFee } from '@/utils/types';
 import { handelDates } from '@/utils/helpers';
 import RequestBoatAPIProvider from '@/api/request';
 import { requestData, boatData } from '@/api/dummy_data';
@@ -177,6 +177,14 @@ const onSelectBoat = async (boatName: string) => {
 const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
   if (calendar.value) {
     if (update) {
+      if (request.value.status !== BookingStatus.Deposit) {
+        delete request.value.fee;
+      } else {
+        if (request.value.fee) {
+          request.value.fee = { total: +request.value.fee.total, deposit: +request.value.fee.deposit };
+        }
+      }
+
       const response = await RequestBoatAPIProvider.put(request.value);
       if (response.isError) {
         Notification.error(response.message!, {});
@@ -185,6 +193,7 @@ const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
 
       request.value.start = new Date(request.value.startStr);
       request.value.end = new Date(request.value.endStr);
+
       pushEvent(_request);
     } else {
       request.value.id = uuidv4();
@@ -234,6 +243,10 @@ const pushEvent = (_request: RequestAPIData) => {
   };
   options.events = [...options.events, event];
 };
+
+const updateRequestFee = (fee: RequestPaymentFee) => {
+  request.value.fee = fee;
+};
 </script>
 
 <template>
@@ -256,6 +269,7 @@ const pushEvent = (_request: RequestAPIData) => {
       @update:status-color="updateRequestStatus"
       @update:select-boat="onSelectBoat"
       @update:request="updateRequest"
+      @update:fee="updateRequestFee"
       :is-open="isViewRequest"
       :request="request"
     />

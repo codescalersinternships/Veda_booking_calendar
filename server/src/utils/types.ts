@@ -33,6 +33,11 @@ export type BoatApiData = {
   isAvailable: boolean;
 };
 
+export type RequestPaymentFee = {
+  total: number;
+  deposit: number;
+};
+
 export type RequestBody = {
   id?: number;
   boat: BoatApiData;
@@ -42,6 +47,9 @@ export type RequestBody = {
   end: Date;
   endStr?: string;
   status: BookingStatus;
+  fee?: RequestPaymentFee;
+  totalFee?: number;
+  depositFee?: number;
 };
 
 export type BoatBody = {

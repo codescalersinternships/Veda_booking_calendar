@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../models';
-import { ResponseType, RequestBody, BookingStatus } from '../utils/types';
+import { ResponseType, RequestBody, BookingStatus, RequestPaymentFee } from '../utils/types';
 
 const Request: any = db.requests;
 const Boat: any = db.boats;
@@ -84,6 +84,12 @@ export class RequestController {
           },
         });
         request.dataValues.boat = boat;
+
+        const fee: RequestPaymentFee = { total: request.totalFee, deposit: request.depositFee };
+        request.dataValues.fee = fee;
+
+        // data.totalFee = fee.total;
+        // data.depositFee = fee.deposit;
       }
       return res.status(200).send({ data: requests, message: 'Success response.', status: 200 });
     } catch (error) {
@@ -104,6 +110,12 @@ export class RequestController {
       const data: RequestBody = req.body;
       const start = new Date(data.startStr!);
       const end = new Date(data.endStr!);
+      const fee = data.fee;
+
+      if (fee) {
+        data.totalFee = fee.total;
+        data.depositFee = fee.deposit;
+      }
 
       data.start = start;
       data.end = end;

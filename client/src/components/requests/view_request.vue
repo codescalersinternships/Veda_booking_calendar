@@ -190,12 +190,14 @@ const handleStatus = (value: string) => {
           <v-row>
             <v-col>
               <v-text-field
+                type="number"
                 :item-color="request.boat.color"
                 :base-color="request.boat.color"
                 :color="request.boat.color"
                 variant="outlined"
                 hide-details="auto"
                 label="Total fee"
+                :readonly="isEdit"
                 v-model="$props.request.fee!.total"
                 :hint="`Total reservation amount.`"
               />
@@ -203,14 +205,16 @@ const handleStatus = (value: string) => {
 
             <v-col>
               <v-text-field
+                type="number"
                 :item-color="request.boat.color"
                 :base-color="request.boat.color"
                 :color="request.boat.color"
                 variant="outlined"
                 hide-details="auto"
+                :readonly="isEdit"
                 label="Deposit fee"
                 append-icon="mdi-currency-usd"
-                v-model="$props.request.fee!.total"
+                v-model="$props.request.fee!.deposit"
                 :hint="`Deposit paid.`"
               />
             </v-col>
