@@ -108,19 +108,24 @@ export class RequestController {
       data.start = start;
       data.end = end;
 
-      const request = await Request.update(data, {
-        returning: true,
+      await Request.update(data, {
         where: {
           id: req.params.requestId,
         },
       });
 
-      if (request) {
-        return res.status(201).send({ data: request, message: 'Success response.', status: 200 });
+      const _request = await Request.findOne(data, {
+        where: {
+          id: req.params.requestId,
+        },
+      });
+
+      if (_request) {
+        return res.status(201).send({ data: _request, message: 'Success response.', status: 200 });
       }
       return res.status(404).send({ message: `Record not found.`, status: 404 });
     } catch (error) {
-      return res.status(400).send({ message: `Error while getting request due:`, status: 400 });
+      return res.status(400).send({ message: `Error while putting request due: ${error}`, status: 400 });
     }
   }
 }

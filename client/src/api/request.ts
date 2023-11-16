@@ -4,7 +4,6 @@ import http from './axios';
 
 export default class RequestBoatAPIProvider {
   static async put(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
-    console.log('Put', _request);
     try {
       const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.put(
         import.meta.env.VITE_SERVER_DOMAIN + `api/requests/${_request.id}/`,
@@ -17,7 +16,6 @@ export default class RequestBoatAPIProvider {
     }
   }
   static async post(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
-    console.log('Post', _request);
     try {
       const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.post(
         import.meta.env.VITE_SERVER_DOMAIN + 'api/requests/',

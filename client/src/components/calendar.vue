@@ -123,7 +123,6 @@ const validateDate = (startDate: Date) => {
 const onSelect = async (arg: DateSelectArg) => {
   toast.value.close();
   calendar.value = arg.view.calendar;
-
   const dates = handelDates({
     end: arg.end,
     start: arg.start,
@@ -136,7 +135,6 @@ const onSelect = async (arg: DateSelectArg) => {
   request.value.end = dates.end;
   request.value.startStr = dates.startStr;
   request.value.endStr = dates.endStr;
-  request.value.id = uuidv4();
 
   const validated: boolean = validateDate(arg.start);
   if (validated) {
@@ -177,20 +175,27 @@ const onSelectBoat = async (boatName: string) => {
 };
 
 const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
-  console.log('calendar', calendar.value);
-
   if (calendar.value) {
     if (update) {
-      console.log(requests.value);
+      const response = await RequestBoatAPIProvider.put(request.value);
+      if (response.isError) {
+        Notification.error(response.message!, {});
+        return;
+      }
 
-      // RequestBoatAPIProvider.put(request.value);
-      // requests.value.splice(requests.value.indexOf(request.value, 1));
+      request.value.start = new Date(request.value.startStr);
+      request.value.end = new Date(request.value.endStr);
+      pushEvent(_request);
     } else {
+      request.value.id = uuidv4();
+      request.value.status = BookingStatus.Request;
       const response = await RequestBoatAPIProvider.post(request.value);
-      console.log('response', response);
+      if (response.isError) {
+        Notification.error(response.message!, {});
+        return;
+      }
 
       pushEvent(_request);
-      requests.value.push(_request);
       isPostRequest.value = false;
       calendar.value.unselect();
     }
@@ -207,13 +212,21 @@ const normalizeRequestTitle = (request: RequestAPIData) => {
 };
 
 const pushEvent = (_request: RequestAPIData) => {
+  const dates = handelDates({
+    end: _request.end,
+    start: _request.start,
+    endStr: _request.endStr,
+    startStr: _request.startStr,
+    add: true,
+  });
+
   const event = {
     title: normalizeRequestTitle(_request),
     color: _request.boat.color,
-    start: _request.start,
-    startStr: _request.startStr,
-    endStr: _request.endStr,
-    end: _request.end,
+    start: dates.start,
+    startStr: dates.startStr,
+    endStr: dates.endStr,
+    end: dates.end,
     backgroundColor: _request.boat.color,
     boat: _request.boat,
     id: _request.id,

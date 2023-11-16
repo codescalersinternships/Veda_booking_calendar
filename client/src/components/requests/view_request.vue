@@ -7,6 +7,8 @@ import { UserApiProvider } from '@/api/users';
 import SelectBoat from '../boats/select_boat.vue';
 
 const emit = defineEmits(['close-dialog', 'update:statusColor', 'update:select-boat', 'update:request']);
+const startDateErrorMessage = ref<string>();
+const endDateErrorMessage = ref<string>();
 
 const props = defineProps({
   isOpen: {
@@ -18,6 +20,48 @@ const props = defineProps({
     required: true,
   },
 });
+
+function isValidStartDate(dateString: string) {
+  startDateErrorMessage.value = undefined;
+
+  // Define the regex pattern for 'yyyy-mm-dd'
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  // Test if the input matches the pattern
+  if (!datePattern.test(dateString)) {
+    startDateErrorMessage.value = "The start date should match this pattern. 'yyyy-mm-dd'.";
+    return false;
+  }
+
+  // Parse the date and check if it's a valid date
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    startDateErrorMessage.value = 'Please try to type a valid start date.';
+    return false;
+  }
+
+  return true;
+}
+
+function isValidEndDate(dateString: string) {
+  endDateErrorMessage.value = undefined;
+
+  // Define the regex pattern for 'yyyy-mm-dd'
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  // Test if the input matches the pattern
+  if (!datePattern.test(dateString)) {
+    endDateErrorMessage.value = "The end date should match this pattern. 'yyyy-mm-dd'.";
+    return false;
+  }
+
+  // Parse the date and check if it's a valid date
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    endDateErrorMessage.value = 'Please try to type a valid end date.';
+    return false;
+  }
+
+  return true;
+}
 
 const isEdit = ref<boolean | undefined>(true);
 
@@ -58,6 +102,8 @@ const handleStatus = (value: string) => {
             :readonly="isEdit"
             v-model="$props.request.startStr"
             hint="Request start date, usually selected from the calendar."
+            :rules="[isValidStartDate]"
+            :error-messages="startDateErrorMessage != undefined ? startDateErrorMessage : undefined"
           />
         </div>
 
@@ -72,6 +118,8 @@ const handleStatus = (value: string) => {
             append-icon="mdi-calendar"
             :readonly="isEdit"
             label="To"
+            :rules="[isValidEndDate]"
+            :error-messages="endDateErrorMessage != undefined ? endDateErrorMessage : undefined"
             hint="Request end date, usually selected from the calendar."
           />
         </div>
