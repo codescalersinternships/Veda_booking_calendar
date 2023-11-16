@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PropType, defineComponent, capitalize, ref } from 'vue';
+import { PropType, defineComponent, capitalize, ref, Ref } from 'vue';
 import customDialog from '@/components/ui/custom_dialog.vue';
 import { BookingStatus, RequestAPIData } from '@/utils/types';
 import { AuthenticationApiProvider } from '@/api/auth';
@@ -7,8 +7,8 @@ import { UserApiProvider } from '@/api/users';
 import SelectBoat from '../boats/select_boat.vue';
 
 const emit = defineEmits(['close-dialog', 'update:statusColor', 'update:select-boat', 'update:request']);
-const startDateErrorMessage = ref<string>();
-const endDateErrorMessage = ref<string>();
+const startDateErrorMessage = ref<string>('');
+const endDateErrorMessage = ref<string>('');
 
 const props = defineProps({
   isOpen: {
@@ -21,47 +21,26 @@ const props = defineProps({
   },
 });
 
-function isValidStartDate(dateString: string) {
-  startDateErrorMessage.value = undefined;
+function isValidDate(dateString: string, errorMessage: Ref<string>) {
+  errorMessage.value = '';
 
-  // Define the regex pattern for 'yyyy-mm-dd'
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  // Test if the input matches the pattern
+  const datePattern = /^\d{4}-(0[1-9]|1[0-2]|[1-9])-(0[1-9]|[1-2][0-9]|3[0-1]|[1-9])$/;
   if (!datePattern.test(dateString)) {
-    startDateErrorMessage.value = "The start date should match this pattern. 'yyyy-mm-dd'.";
+    errorMessage.value = `The date should match this pattern: 'yyyy-mm-dd'.`;
     return false;
   }
 
-  // Parse the date and check if it's a valid date
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
-    startDateErrorMessage.value = 'Please try to type a valid start date.';
+    errorMessage.value = 'Please enter a valid date.';
     return false;
   }
 
   return true;
 }
 
-function isValidEndDate(dateString: string) {
-  endDateErrorMessage.value = undefined;
-
-  // Define the regex pattern for 'yyyy-mm-dd'
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  // Test if the input matches the pattern
-  if (!datePattern.test(dateString)) {
-    endDateErrorMessage.value = "The end date should match this pattern. 'yyyy-mm-dd'.";
-    return false;
-  }
-
-  // Parse the date and check if it's a valid date
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    endDateErrorMessage.value = 'Please try to type a valid end date.';
-    return false;
-  }
-
-  return true;
-}
+const isValidStartDate = (dateString: string) => isValidDate(dateString, startDateErrorMessage);
+const isValidEndDate = (dateString: string) => isValidDate(dateString, endDateErrorMessage);
 
 const isEdit = ref<boolean | undefined>(true);
 

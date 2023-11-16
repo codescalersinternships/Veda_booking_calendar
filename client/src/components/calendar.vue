@@ -105,6 +105,7 @@ const onClick = async (arg: EventClickArg) => {
   request.value = requests.value.filter(request => request.id === arg.event.id)[0];
   calendar.value = arg.view.calendar;
   request.value.requestStatusColor = setRequestBackground(request.value);
+  document.querySelector('.fc-popover')?.classList.add('d-none');
   isViewRequest.value = true;
 };
 
@@ -321,3 +322,12 @@ export default {
   components: { NewRequest, ViewRequest },
 };
 </script>
+<style>
+.past-date {
+  background: #a9a9a969;
+  cursor: not-allowed;
+}
+.d-none {
+  display: none !important;
+}
+</style>
