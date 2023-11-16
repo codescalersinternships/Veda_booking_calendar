@@ -121,6 +121,7 @@ const validateDate = (startDate: Date) => {
 };
 
 const onSelect = async (arg: DateSelectArg) => {
+  resetRequest();
   toast.value.close();
   calendar.value = arg.view.calendar;
   const dates = handelDates({
@@ -205,6 +206,7 @@ const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
       }
 
       pushEvent(_request);
+      requests.value.push(_request);
       isPostRequest.value = false;
       calendar.value.unselect();
     }
@@ -212,8 +214,30 @@ const updateRequest = async (_request: RequestAPIData, update?: boolean) => {
 };
 
 const resetRequest = () => {
-  request.value = requestData;
-  boat.value = boatData;
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+
+  boat.value = {
+    id: '',
+    title: undefined,
+    description: undefined,
+    color: '',
+    isAvailable: false,
+  };
+
+  request.value = {
+    id: '',
+    boat: boat.value,
+    end: today,
+    endStr: todayStr,
+    start: today,
+    startStr: todayStr,
+    status: BookingStatus.NotSet,
+    requestStatusColor: BookingStatusColor.NotSet,
+    companyName: '',
+    contactPerson: '',
+    boatId: '',
+  };
 };
 
 const normalizeRequestTitle = (request: RequestAPIData) => {

@@ -1,5 +1,5 @@
 export type BoatApiData = {
-  id?: number;
+  id?: string;
   title?: string;
   description?: string;
   color: string;
@@ -13,7 +13,7 @@ export type RequestPaymentFee = {
 
 export type RequestAPIData = {
   id: string;
-  boatId: number;
+  boatId: string;
   boat: BoatApiData;
   end: Date;
   endStr: string;
