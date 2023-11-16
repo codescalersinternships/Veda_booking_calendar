@@ -69,3 +69,19 @@ Linting can be performed for both the server and client using the following comm
     ```bash
     make lintclient
     ```
+
+### Docker Build
+
+Linting can be performed for both the server and client using the following commands:
+
+- Server:
+
+    ```bash
+    make buildserver
+    ```
+
+- Client:
+
+    ```bash
+    make buildclient VITE_SERVER_DOMAIN=<your_server_domain>
+    ```

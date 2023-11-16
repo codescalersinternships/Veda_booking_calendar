@@ -11,7 +11,8 @@ const http = axios.create({
 http.interceptors.request.use(config => {
   const accessToken = localStorage.getItem('vedaAccessToken');
   if (accessToken) {
-    config.headers = { ...config.headers, Authorization: accessToken };
+    config.headers.Authorization = accessToken;
+    // config.headers = { ...config.headers, Authorization: accessToken };
   }
   return config;
 });

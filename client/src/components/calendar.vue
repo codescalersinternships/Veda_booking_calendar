@@ -38,18 +38,23 @@ const boats = ref<BoatApiData[]>([]);
 
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
+  console.info('Backend server on: ', import.meta.env.VITE_SERVER_DOMAIN);
+
   isLoading.value = true;
+  console.info('Connecting...');
   const user = await userAPIProvider.getRequestedUser();
 
   if (user.isError) {
     // Unauthorized user, user should login again.
+    console.warn('Error while trying to connect to the server, the requested user is not authenticated.', user.message);
     if (user.message === 'Network Error') {
       toast.value = Notification.error(`${user.message}: The server might be down.`, {});
     } else {
+      console.info('signing out...');
+      AuthenticationApiProvider.logout();
       toast.value = Notification.warn(user.message!, {});
     }
-    AuthenticationApiProvider.logout();
-  } else {
+    console.info('Connected.');
     const loadBoats = await BoatsApiProvider.all();
     boats.value = loadBoats.data!;
 
@@ -267,7 +272,7 @@ const pushEvent = (_request: RequestAPIData) => {
     id: _request.id,
     allDay: true,
   };
-  options.events = [...options.events, event];
+  options.events = [...(options.events as []), event];
 };
 
 const updateRequestFee = (fee: RequestPaymentFee) => {
