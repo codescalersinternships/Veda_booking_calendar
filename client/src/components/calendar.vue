@@ -85,6 +85,7 @@ const updateRequestStatus = (status: string) => {
   status = status.toLocaleLowerCase().replaceAll(' ', '_');
   request.value.status = setRequestStatus(status);
   request.value.requestStatusColor = setRequestBackground(request.value);
+  updateRequestFee({ total: 0, deposit: 0 });
 };
 
 const setRequestBackground = (request: RequestAPIData): BookingStatusColor => {
@@ -242,7 +243,7 @@ const resetRequest = () => {
 };
 
 const normalizeRequestTitle = (request: RequestAPIData) => {
-  return `${capitalize(request.boat.title || 'Boat')} | ${capitalize(request.status.replace('_', ' '))}`;
+  return `${capitalize(request.boat.title || 'Boat')} | ${capitalize(request.status.replaceAll('_', ' '))}`;
 };
 
 const pushEvent = (_request: RequestAPIData) => {
@@ -294,7 +295,6 @@ const updateRequestFee = (fee: RequestPaymentFee) => {
       @update:status-color="updateRequestStatus"
       @update:select-boat="onSelectBoat"
       @update:request="updateRequest"
-      @update:fee="updateRequestFee"
       :is-open="isViewRequest"
       :request="request"
     />

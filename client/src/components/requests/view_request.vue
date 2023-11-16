@@ -165,7 +165,7 @@ const handleStatus = (value: string) => {
           </v-select>
         </div>
 
-        <div class="mt-5" v-if="request.status === BookingStatus.Deposit && request.fee">
+        <div class="mt-5" v-if="request.status === BookingStatus.Deposit">
           <v-row>
             <v-col>
               <v-text-field
