@@ -55,15 +55,15 @@ onMounted(async () => {
       toast.value = Notification.warn(user.message!, {});
     }
     console.info('Connected.');
-    const loadBoats = await BoatsApiProvider.all();
-    boats.value = loadBoats.data!;
-
     const loadRequests = await RequestBoatAPIProvider.all();
     if (loadRequests.isError) {
       toast.value = Notification.error(`${loadRequests.message}: The server might be down.`, {});
     }
 
     requests.value = loadRequests.data || [];
+  } else {
+    const loadBoats = await BoatsApiProvider.all();
+    boats.value = loadBoats.data!;
   }
 
   for (const __request of requests.value) {

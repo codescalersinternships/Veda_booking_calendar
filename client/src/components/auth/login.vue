@@ -133,7 +133,9 @@ const submit = async () => {
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="pa-3">
-          <v-btn :disabled="isLoadingForm" color="primary" flat> New User? </v-btn>
+          <v-btn @click="router.push('/register-user')" :disabled="isLoadingForm" color="primary" flat>
+            New User?
+          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
             @click="submit"
