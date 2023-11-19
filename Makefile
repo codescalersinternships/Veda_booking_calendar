@@ -12,6 +12,6 @@ lintclient:
 	$(CLIENT) && yarn lint
 
 buildserver:
-	$(SERVER) && yarn lint
+	docker build --build-arg VEDA_SERVER_DOMAIN=$(VEDA_SERVER_DOMAIN) -t veda_server -f ./server/Dockerfile .
 buildclient:
-	docker build --build-arg VITE_SERVER_DOMAIN=$(VITE_SERVER_DOMAIN) -t veda -f ./client/Dockerfile .
+	docker build --build-arg VEDA_SERVER_DOMAIN=$(VEDA_SERVER_DOMAIN) -t veda_client -f ./client/Dockerfile .

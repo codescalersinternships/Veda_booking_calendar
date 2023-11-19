@@ -1,7 +1,7 @@
 import { Sequelize, ModelStatic, Model } from 'sequelize';
 
 export type UserApiData = SignupBody & {
-  id: number;
+  id: string;
   role: UserRole;
 };
 
@@ -26,7 +26,7 @@ export type SignupBody = {
 };
 
 export type BoatApiData = {
-  id?: number;
+  id?: string;
   title?: string;
   description?: string;
   color: string;
@@ -39,7 +39,7 @@ export type RequestPaymentFee = {
 };
 
 export type RequestBody = {
-  id?: number;
+  id?: string;
   boat: BoatApiData;
   boatId: number;
   start: Date;
@@ -57,7 +57,7 @@ export type BoatBody = {
   description?: string;
   isAvailable: boolean;
   color: string;
-  id?: number;
+  id?: string;
 };
 
 export enum UserRole {
@@ -90,6 +90,7 @@ export type VedaConfig<T = any> = {
 
 export type VedaDatabaseConfig = {
   HOST: string;
+  DATABASE_URL?: string;
   USER: string;
   PASSWORD: string;
   NAME: string;

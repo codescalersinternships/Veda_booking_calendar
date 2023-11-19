@@ -1,0 +1,24 @@
+
+# build stage
+FROM node:18.18.2 as build-stage
+WORKDIR /app
+
+# Set the environment variable
+ENV DATABASE_URL=$DATABASE_URL
+ENV SERVER_PORT=$SERVER_PORT
+ENV VEDA_FRONTEND_DOMAIN=$VEDA_FRONTEND_DOMAIN
+ENV DATABASE_NAME=$DATABASE_NAME
+ENV DATABASE_HOST=$DATABASE_HOST
+ENV DATABASE_USER=$DATABASE_USER
+ENV DATABASE_PASSWORD=$DATABASE_PASSWORD
+ENV DATABASE_PORT=$DATABASE_PORT
+
+COPY server/package*.json ./
+RUN yarn && yarn add ts-node@10.9.1
+COPY server/ .
+
+EXPOSE 3000
+
+RUN chmod +x /app/src/config/build-env.sh
+
+ENTRYPOINT [ "/app/src/config/build-env.sh" ]

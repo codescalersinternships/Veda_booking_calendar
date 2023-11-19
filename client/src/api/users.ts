@@ -5,9 +5,7 @@ import http from './axios';
 export class UserApiProvider {
   async getRequestedUser(): Promise<ResponseWrapper<UserAuthFormResponse>> {
     try {
-      const userresponse: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.get(
-        import.meta.env.VITE_SERVER_DOMAIN + 'api/users/me/',
-      );
+      const userresponse: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.get('/api/users/me/');
       sessionStorage.setItem('vedaUserRole', userresponse.data.data?.role || '');
       return { message: userresponse.data.message, data: userresponse.data.data, isError: false };
     } catch (error: any) {

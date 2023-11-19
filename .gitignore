@@ -25,3 +25,8 @@ server/.env
 client/.env
 client/dist
 server/dist
+terraform/.terraform.lock.hcl
+terraform/.terraform/*
+terraform/state.json
+terraform/terraform.tfstate
+terraform/main.tf.template

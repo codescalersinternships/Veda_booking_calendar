@@ -11,10 +11,14 @@ import { config } from './config/config';
 import { ResponseType } from './utils/types';
 import { authenticateToken, requestLogger } from './middlewares/middleware.user';
 
+import { registerHandler } from 'segfault-handler';
+
 const app = express();
+registerHandler('crash.log');
 
 const corsOptions = {
-  origin: config.OTHER.VEDA_FRONTEND_DOMAIN,
+  // origin: config.OTHER.VEDA_FRONTEND_DOMAIN,
+  origin: '*',
 };
 
 if (db && db.sequelize) {

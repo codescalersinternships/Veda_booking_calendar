@@ -38,7 +38,7 @@ const boats = ref<BoatApiData[]>([]);
 
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
-  console.info('Backend server on: ', import.meta.env.VITE_SERVER_DOMAIN);
+  console.info('Backend server on: ', window.env.VEDA_SERVER_DOMAIN);
 
   isLoading.value = true;
   console.info('Connecting...');
@@ -49,10 +49,10 @@ onMounted(async () => {
     console.warn('Error while trying to connect to the server, the requested user is not authenticated.', user.message);
     if (user.message === 'Network Error') {
       toast.value = Notification.error(`${user.message}: The server might be down.`, {});
-    } else {
+    } else if (user.message) {
       console.info('signing out...');
       AuthenticationApiProvider.logout();
-      toast.value = Notification.warn(user.message!, {});
+      toast.value = Notification.warn(user.message, {});
     }
     console.info('Connected.');
     const loadRequests = await RequestBoatAPIProvider.all();

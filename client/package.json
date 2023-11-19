@@ -4,9 +4,9 @@
   "author": "Mahmoud Emad",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
+    "serve": "vite preview --host",
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
   "dependencies": {

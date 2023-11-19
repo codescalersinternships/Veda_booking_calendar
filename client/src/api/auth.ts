@@ -18,10 +18,7 @@ export class AuthenticationApiProvider {
 
   async login(form: UserLoginForm): Promise<ResponseWrapper<UserAuthFormResponse>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post(
-        import.meta.env.VITE_SERVER_DOMAIN + 'api/auth/signin/',
-        form,
-      );
+      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post('/api/auth/signin/', form);
       localStorage.setItem('vedaAccessToken', response.data.data!.vedaAccessToken);
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
@@ -32,10 +29,7 @@ export class AuthenticationApiProvider {
 
   async register(form: UserRegisterForm): Promise<ResponseWrapper<UserAuthFormResponse>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post(
-        import.meta.env.VITE_SERVER_DOMAIN + 'api/auth/signup/',
-        form,
-      );
+      const response: AxiosResponse<ResponseWrapper<UserAuthFormResponse>> = await http.post('/api/auth/signup/', form);
       localStorage.setItem('vedaAccessToken', response.data.data!.vedaAccessToken);
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {

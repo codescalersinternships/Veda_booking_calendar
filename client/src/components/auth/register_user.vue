@@ -11,7 +11,6 @@ onMounted(async () => {
   isLoading.value = true;
   if (AuthenticationApiProvider.isAuthenticated()) {
     isAdminUser.value = UserApiProvider.isAdmin();
-    console.log('isAdminUser', isAdminUser.value);
   }
   isLoading.value = false;
 });

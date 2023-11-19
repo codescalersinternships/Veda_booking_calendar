@@ -1,10 +1,9 @@
-import { UserAuthFormResponse } from './../../../client/src/utils/types';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { config } from '../config/config';
 import { db } from '../models';
-import { SignupBody, ResponseType } from '../utils/types';
+import { SignupBody, ResponseType, UserAuthFormResponse } from '../utils/types';
 
 const User: any = db.users;
 
@@ -104,13 +103,11 @@ export class UserController {
         if (user) {
           // Compare the provided password with the hashed password in the database
           const isSame = await bcrypt.compare(data.password, user.password);
-
           if (isSame) {
             // Generate a JWT token
             const token = jwt.sign({ id: user.id }, config.OTHER.JWT_SECRET_KEY, {
               expiresIn: 1 * 24 * 60 * 60 * 1000,
             });
-
             // Set the JWT token as a cookie
             // res.cookie('vedaAccessToken', token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
             const data = { ...user.dataValues, vedaAccessToken: token };

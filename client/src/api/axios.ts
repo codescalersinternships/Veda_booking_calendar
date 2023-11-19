@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const http = axios.create({
-  baseURL: import.meta.env.VITE_SERVER_DOMAIN,
+  baseURL: window.env.VEDA_SERVER_DOMAIN,
   // withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

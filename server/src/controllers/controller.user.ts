@@ -3,6 +3,9 @@ import { db } from '../models';
 import { RequestType, ResponseType, UserApiData } from '../utils/types';
 
 const User: any = db.users;
+export interface IGetUserAuthInfoRequest<T> extends Request<T> {
+  user: UserApiData; // or any other type
+}
 
 /**
  * Controller class handling user-related operations like get, update and delete.
@@ -15,7 +18,8 @@ export class UserController {
    * @returns A Promise representing the HTTP response.
    */
   static async me(
-    req: Request<RequestType<UserApiData>>,
+    req: any,
+    // req: IGetUserAuthInfoRequest<RequestType<UserApiData>>,
     res: Response<ResponseType>,
   ): Promise<Response<ResponseType<UserApiData>, Record<string, any>>> {
     try {

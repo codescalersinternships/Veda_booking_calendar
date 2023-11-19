@@ -6,6 +6,8 @@ import { Sequelize } from 'sequelize';
 import { config } from './../config/config';
 import { Database } from '../utils/types';
 
+console.log('config', config);
+
 const sequelize = new Sequelize(
   `postgres://${config.DATABASE.USER}:${config.DATABASE.PASSWORD}@${config.DATABASE.HOST}:${config.DATABASE.PORT}/${config.DATABASE.NAME}`,
 );

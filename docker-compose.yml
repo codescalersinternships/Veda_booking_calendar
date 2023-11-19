@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: veda
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - /data:/var/lib/postgresql/data
+    networks:
+      - veda-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    depends_on:
+      - database
+    environment:
+      SERVER_PORT: 3000
+      DATABASE_NAME: veda
+      DATABASE_HOST: database
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_PORT: 5432
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - veda-network  
+
+  frontend:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    depends_on:
+      - backend
+    environment:
+      VEDA_SERVER_DOMAIN: http://0.0.0.0:3000
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - veda-network
+    links: 
+      - backend
+
+networks:
+  veda-network:

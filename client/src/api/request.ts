@@ -6,7 +6,7 @@ export default class RequestBoatAPIProvider {
   static async put(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
     try {
       const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.put(
-        import.meta.env.VITE_SERVER_DOMAIN + `api/requests/${_request.id}/`,
+        `/api/requests/${_request.id}/`,
         _request,
       );
       return { message: response.data.message, data: response.data.data, isError: false };
@@ -17,10 +17,7 @@ export default class RequestBoatAPIProvider {
   }
   static async post(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.post(
-        import.meta.env.VITE_SERVER_DOMAIN + 'api/requests/',
-        _request,
-      );
+      const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.post('/api/requests/', _request);
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
       console.log('error', error);
@@ -30,9 +27,7 @@ export default class RequestBoatAPIProvider {
 
   static async get(id: number): Promise<ResponseWrapper<RequestAPIData>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.get(
-        import.meta.env.VITE_SERVER_DOMAIN + `api/requests/${id}`,
-      );
+      const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.get(`/api/requests/${id}`);
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
       console.log('error', error);
@@ -42,9 +37,7 @@ export default class RequestBoatAPIProvider {
 
   static async all(): Promise<ResponseWrapper<RequestAPIData[]>> {
     try {
-      const response: AxiosResponse<ResponseWrapper<RequestAPIData[]>> = await http.get(
-        import.meta.env.VITE_SERVER_DOMAIN + 'api/requests/',
-      );
+      const response: AxiosResponse<ResponseWrapper<RequestAPIData[]>> = await http.get('/api/requests/');
       return { message: response.data.message, data: response.data.data, isError: false };
     } catch (error: any) {
       console.log('error', error);
