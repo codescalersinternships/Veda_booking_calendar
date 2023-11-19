@@ -1,3 +1,8 @@
+export type RequestDate = {
+  year: number;
+  month: number;
+};
+
 export type BoatApiData = {
   id?: string;
   title?: string;

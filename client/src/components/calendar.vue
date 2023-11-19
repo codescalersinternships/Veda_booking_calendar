@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { CalendarApi, CalendarOptions, DateSelectArg, EventClickArg } from '@fullcalendar/core';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
-import { onMounted, reactive, ref, capitalize } from 'vue';
+import { onMounted, reactive, ref, capitalize, watch } from 'vue';
 
 import ViewRequest from '@/components/requests/view_request.vue';
 import NewRequest from '@/components/requests/request.vue';
@@ -18,6 +18,8 @@ import { AuthenticationApiProvider } from '@/api/auth';
 import BoatsApiProvider from '@/api/boats';
 import { Notification } from '@/utils/toast';
 import { v4 as uuidv4 } from 'uuid';
+
+const currentDate = ref<Date>(new Date());
 
 const toast = ref<{
   close: () => void;
@@ -35,6 +37,21 @@ const boat = ref<BoatApiData>(boatData);
 
 const requests = ref<RequestAPIData[]>([]);
 const boats = ref<BoatApiData[]>([]);
+
+const loadRequests = async () => {
+  requests.value = [];
+  const loadRequests = await RequestBoatAPIProvider.all({
+    year: currentDate.value.getFullYear(),
+    month: currentDate.value.getMonth() + 1,
+  });
+  if (loadRequests.isError) {
+    toast.value = Notification.error(`${loadRequests.message}: The server might be down.`, {});
+  }
+  requests.value = loadRequests.data || [];
+  for (const __request of requests.value) {
+    pushEvent(__request);
+  }
+};
 
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
@@ -55,19 +72,9 @@ onMounted(async () => {
       toast.value = Notification.warn(user.message, {});
     }
     console.info('Connected.');
-    const loadRequests = await RequestBoatAPIProvider.all();
-    if (loadRequests.isError) {
-      toast.value = Notification.error(`${loadRequests.message}: The server might be down.`, {});
-    }
-
-    requests.value = loadRequests.data || [];
   } else {
     const loadBoats = await BoatsApiProvider.all();
     boats.value = loadBoats.data!;
-  }
-
-  for (const __request of requests.value) {
-    pushEvent(__request);
   }
 
   isLoading.value = false;
@@ -168,6 +175,7 @@ const options = reactive<CalendarOptions>({
   eventClick: onClick,
   events: [],
   editable: false,
+  datesSet: arg => (currentDate.value = arg.view.currentStart),
 });
 
 const onSelectBoat = async (boatName: string) => {
@@ -278,6 +286,8 @@ const pushEvent = (_request: RequestAPIData) => {
 const updateRequestFee = (fee: RequestPaymentFee) => {
   request.value.fee = fee;
 };
+
+watch(currentDate, () => loadRequests(), { deep: true });
 </script>
 
 <template>

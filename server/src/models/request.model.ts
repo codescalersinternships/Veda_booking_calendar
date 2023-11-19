@@ -16,11 +16,6 @@ export const defineRequestTable = (sequelize: Sequelize) => {
         allowNull: false,
         references: { model: 'boats', key: 'id' },
       },
-      // boat: {
-      //   type: DataTypes.JSON,
-      //   allowNull: false,
-      //   references: { model: 'boats', key: 'id' },
-      // },
       end: {
         type: DataTypes.DATE,
         allowNull: false,

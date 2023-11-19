@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../models';
 import { ResponseType, RequestBody, BookingStatus, RequestPaymentFee } from '../utils/types';
+import { Op, Sequelize } from 'sequelize';
 
 const Request: any = db.requests;
 const Boat: any = db.boats;
@@ -76,7 +77,38 @@ export class RequestController {
     res: Response<ResponseType>,
   ): Promise<Response<ResponseType<any>, Record<string, any>>> {
     try {
-      const requests = (await Request.findAll()) || [];
+      const year = req.query.year;
+      const month = req.query.month;
+      let requests = [];
+      console.log('year && month', year, month);
+
+      if (year && month) {
+        requests = await Request.findAll({
+          where: {
+            [Op.or]: [
+              {
+                start: {
+                  [Op.and]: [
+                    Sequelize.literal(`EXTRACT(YEAR FROM "start") = ${year}`),
+                    Sequelize.literal(`EXTRACT(MONTH FROM "start") = ${month}`),
+                  ],
+                },
+              },
+              {
+                end: {
+                  [Op.and]: [
+                    Sequelize.literal(`EXTRACT(YEAR FROM "end") = ${year}`),
+                    Sequelize.literal(`EXTRACT(MONTH FROM "end") = ${month}`),
+                  ],
+                },
+              },
+            ],
+          },
+        });
+      } else {
+        requests = await Request.findAll();
+      }
+
       for (const request of requests) {
         const boat = await Boat.findOne({
           where: {
