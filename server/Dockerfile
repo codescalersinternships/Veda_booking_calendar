@@ -14,7 +14,7 @@ ENV DATABASE_PASSWORD=$DATABASE_PASSWORD
 ENV DATABASE_PORT=$DATABASE_PORT
 
 COPY server/package*.json ./
-RUN yarn && yarn add ts-node@10.9.1
+RUN yarn install && yarn add ts-node@10.9.1
 COPY server/ .
 
 EXPOSE 3000
