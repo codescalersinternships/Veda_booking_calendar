@@ -1,5 +1,5 @@
 # build stage
-FROM node:lts-alpine as build-stage
+FROM node:18.18.2 as build-stage
 WORKDIR /app
 
 ENV VEDA_SERVER_DOMAIN=$VEDA_SERVER_DOMAIN
