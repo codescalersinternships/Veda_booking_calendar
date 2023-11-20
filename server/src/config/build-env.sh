@@ -9,11 +9,10 @@ echo "DATABASE_URL=$DATABASE_URL" > /app/.env \
 && echo "DATABASE_USER=$DATABASE_USER" >> /app/.env \
 && echo "DATABASE_PASSWORD=$DATABASE_PASSWORD" >> /app/.env \
 && echo "DATABASE_PORT=$DATABASE_PORT" >> /app/.env \
-&& echo "JWT_SECRET_KEY=secretKey1010" >> /app/.env
+&& echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> /app/.env
 
 echo "++++++++++++++++++++++++++++++++++++++++++++"
-echo "DATABASE_HOST=$DATABASE_HOST"
-echo "JWT_SECRET_KEY=$JWT_SECRET_KEY"
+cat /app/.env
 echo "++++++++++++++++++++++++++++++++++++++++++++"
 
 exec yarn serve
