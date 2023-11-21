@@ -34,7 +34,7 @@ services:
       - "3000:3000"
     restart: always
     networks:
-      - veda-network  
+      - veda-network
 
   frontend:
     build:
