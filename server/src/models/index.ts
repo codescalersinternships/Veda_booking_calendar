@@ -6,10 +6,8 @@ import { Sequelize } from 'sequelize';
 import { config } from './../config/config';
 import { Database } from '../utils/types';
 
-console.log('config', config);
-
 const sequelize = new Sequelize(
-  `postgres://${config.DATABASE.USER}:${config.DATABASE.PASSWORD}@${config.DATABASE.HOST}:${config.DATABASE.PORT}/${config.DATABASE.NAME}`,
+  `postgres://${config.DATABASE.USER}:${config.DATABASE.PASSWORD}@${config.DATABASE.HOST}:${config.DATABASE.PORT}/postgres`,
 );
 
 //checking if connection is done
@@ -27,4 +25,13 @@ export const db: Database = {
   users: defineUserTable(sequelize),
   boats: defineBoatTable(sequelize),
   requests: defineRequestTable(sequelize),
+};
+
+export const synchronizeAndConnectDatabase = () => {
+  if (db && db.sequelize) {
+    //synchronizing the database and forcing it to false so we dont lose data.
+    db.sequelize.sync({ force: false }).then(() => {
+      console.log('db has been re sync');
+    });
+  }
 };

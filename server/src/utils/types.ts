@@ -90,7 +90,6 @@ export type VedaConfig<T = any> = {
 
 export type VedaDatabaseConfig = {
   HOST: string;
-  DATABASE_URL?: string;
   USER: string;
   PASSWORD: string;
   NAME: string;

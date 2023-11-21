@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../models';
-import { RequestType, ResponseType, UserApiData } from '../utils/types';
+import { ResponseType, UserApiData } from '../utils/types';
 
 const User: any = db.users;
 export interface IGetUserAuthInfoRequest<T> extends Request<T> {
