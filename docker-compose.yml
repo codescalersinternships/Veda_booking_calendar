@@ -29,7 +29,7 @@ services:
       DATABASE_PASSWORD: postgres
       DATABASE_PORT: 5432
       JWT_SECRET_KEY: secret
-      VEDA_FRONTEND_DOMAIN: https://veda.gent01.dev.grid.tf
+      VEDA_FRONTEND_DOMAIN: https://veda.gent01.dev.grid.tf/
     ports:
       - "3000:3000"
     restart: always
