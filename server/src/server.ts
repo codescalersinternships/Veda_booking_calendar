@@ -13,6 +13,8 @@ import { authenticateToken, requestLogger } from './middlewares/middleware.user'
 
 const app = express();
 
+console.log('config.OTHER.VEDA_FRONTEND_DOMAIN', config.OTHER.VEDA_FRONTEND_DOMAIN);
+
 const corsOptions = {
   origin: config.OTHER.VEDA_FRONTEND_DOMAIN,
 };
