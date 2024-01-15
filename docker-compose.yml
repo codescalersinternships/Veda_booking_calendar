@@ -44,6 +44,7 @@ services:
       - backend
     environment:
       VEDA_SERVER_DOMAIN: https://vedaserver.gent01.dev.grid.tf/
+      isProd: false
     ports:
       - "80:80"
     restart: always

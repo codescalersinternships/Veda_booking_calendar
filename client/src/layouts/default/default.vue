@@ -1,8 +1,8 @@
 <template>
   <v-app>
     <default-bar v-if="AuthenticationApiProvider.isAuthenticated() && !isAuthRoute" />
-    <div class="d-flex" v-else>
-      <v-alert v-if="!isAuthRoute" type="warning" variant="tonal">
+    <div class="d-flex">
+      <v-alert v-if="!isAuthRoute && isProd" type="warning" variant="tonal">
         You are not authenticated!, <router-link to="/login">Login</router-link>?
       </v-alert>
       <auth-bar v-else />
@@ -22,6 +22,7 @@ import { useRoute } from 'vue-router';
 import { checkRoute } from '@/utils/helpers';
 
 const isAuthRoute = ref<boolean>(false);
+const isProd = ref<boolean>(window.env.isProd);
 const route = useRoute();
 
 onMounted(async () => {

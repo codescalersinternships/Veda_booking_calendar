@@ -3,6 +3,7 @@ FROM node:18.18.2 as build-stage
 WORKDIR /app
 
 ENV VEDA_SERVER_DOMAIN=$VEDA_SERVER_DOMAIN
+ENV isProd=$isProd
 
 COPY client/package*.json ./
 RUN yarn
@@ -17,6 +18,7 @@ COPY ./nginx/prod.conf /temp/prod.conf
 
 # Use the environment variable in the configuration file
 RUN envsubst '$VEDA_SERVER_DOMAIN' < /temp/prod.conf > /etc/nginx/conf.d/default.conf
+RUN envsubst '$isProd' < /temp/prod.conf > /etc/nginx/conf.d/default.conf
 
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY --from=build-stage /app/scripts/build-env.sh /usr/share/nginx/html

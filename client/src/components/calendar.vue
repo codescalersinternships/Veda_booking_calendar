@@ -1,3 +1,44 @@
+<template>
+  <v-container class="fill-height">
+    <div class="d-flex justify-center align-center w-100" v-if="isLoading">
+      <v-progress-circular color="primary" indeterminate :size="160" :width="3">Loading events...</v-progress-circular>
+    </div>
+    <div class="w-100" v-else>
+      <FullCalendar :options="options">
+        <template v-slot:eventContent="arg">
+          <b>{{ arg.event.title }}</b>
+        </template>
+      </FullCalendar>
+    </div>
+
+    <!-- Boat details -->
+    <view-request
+      v-if="isViewRequest && request"
+      @close-dialog="isViewRequest = false"
+      @update:status-color="updateRequestStatus"
+      @update:select-boat="onSelectBoat"
+      @update:request="updateRequest"
+      :is-open="isViewRequest"
+      :request="request"
+    />
+
+    <!-- reserve new boat -->
+    <new-request
+      @update:select-boat="onSelectBoat"
+      @close-dialog="
+        () => {
+          resetRequest();
+          isPostRequest = false;
+        }
+      "
+      @update:request="updateRequest"
+      :is-open="isPostRequest"
+      :request="request"
+      :selectedBoat="boat"
+    />
+  </v-container>
+</template>
+
 <script lang="ts" setup>
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -40,10 +81,12 @@ const boats = ref<BoatApiData[]>([]);
 
 const loadRequests = async () => {
   requests.value = [];
-  const loadRequests = await RequestBoatAPIProvider.all({
-    year: currentDate.value.getFullYear(),
-    month: currentDate.value.getMonth() + 1,
-  });
+  const loadRequests = !window.env.isProd
+    ? { data: new RequestBoatAPIProvider().dev.requests.all() }
+    : await RequestBoatAPIProvider.all({
+        year: currentDate.value.getFullYear(),
+        month: currentDate.value.getMonth() + 1,
+      });
   if (loadRequests.isError) {
     toast.value = Notification.error(`${loadRequests.message}: The server might be down.`, {});
   }
@@ -56,26 +99,32 @@ const loadRequests = async () => {
 // Load the requests and boat from the server and display them in the calendar.
 onMounted(async () => {
   console.info('Backend server on: ', window.env.VEDA_SERVER_DOMAIN);
+  console.warn(`The instance running on the ${window.env.isProd ? 'production' : 'development'} mode`);
 
   isLoading.value = true;
   console.info('Connecting...');
-  const user = await userAPIProvider.getRequestedUser();
 
-  if (user.isError) {
-    // Unauthorized user, user should login again.
-    console.warn('Error while trying to connect to the server, the requested user is not authenticated.', user.message);
-    if (user.message === 'Network Error') {
-      toast.value = Notification.error(`${user.message}: The server might be down.`, {});
-    } else if (user.message) {
-      console.info('signing out...');
-      AuthenticationApiProvider.logout();
-      toast.value = Notification.warn(user.message, {});
+  if (window.env.isProd) {
+    const user = await userAPIProvider.getRequestedUser();
+    if (user.isError) {
+      // Unauthorized user, user should login again.
+      console.warn(
+        'Error while trying to connect to the server, the requested user is not authenticated.',
+        user.message,
+      );
+      if (user.message === 'Network Error') {
+        toast.value = Notification.error(`${user.message}: The server might be down.`, {});
+      } else if (user.message) {
+        console.info('signing out...');
+        AuthenticationApiProvider.logout();
+        toast.value = Notification.warn(user.message, {});
+      }
+    } else {
+      const loadBoats = await BoatsApiProvider.all();
+      boats.value = loadBoats.data!;
     }
-    console.info('Connected.');
-  } else {
-    const loadBoats = await BoatsApiProvider.all();
-    boats.value = loadBoats.data!;
   }
+  console.info('Connected!');
 
   isLoading.value = false;
 });
@@ -179,8 +228,13 @@ const options = reactive<CalendarOptions>({
 });
 
 const onSelectBoat = async (boatName: string) => {
-  const loadBoats = await BoatsApiProvider.all();
-  boats.value = loadBoats.data!;
+  if (window.env.isProd) {
+    const loadBoats = await BoatsApiProvider.all();
+    boats.value = loadBoats.data!;
+  } else {
+    boats.value = new BoatsApiProvider().dev.boats.all();
+  }
+
   const thisBoat = boats.value.filter(boat => boat.title === boatName);
   if (thisBoat.length) {
     request.value.boat = thisBoat[0];
@@ -289,47 +343,6 @@ const updateRequestFee = (fee: RequestPaymentFee) => {
 
 watch(currentDate, () => loadRequests(), { deep: true });
 </script>
-
-<template>
-  <v-container class="fill-height">
-    <div class="d-flex justify-center align-center w-100" v-if="isLoading">
-      <v-progress-circular color="primary" indeterminate :size="160" :width="3">Loading events...</v-progress-circular>
-    </div>
-    <div class="w-100" v-else>
-      <FullCalendar :options="options">
-        <template v-slot:eventContent="arg">
-          <b>{{ arg.event.title }}</b>
-        </template>
-      </FullCalendar>
-    </div>
-
-    <!-- Boat details -->
-    <view-request
-      v-if="isViewRequest && request"
-      @close-dialog="isViewRequest = false"
-      @update:status-color="updateRequestStatus"
-      @update:select-boat="onSelectBoat"
-      @update:request="updateRequest"
-      :is-open="isViewRequest"
-      :request="request"
-    />
-
-    <!-- reserve new boat -->
-    <new-request
-      @update:select-boat="onSelectBoat"
-      @close-dialog="
-        () => {
-          resetRequest();
-          isPostRequest = false;
-        }
-      "
-      @update:request="updateRequest"
-      :is-open="isPostRequest"
-      :request="request"
-      :selectedBoat="boat"
-    />
-  </v-container>
-</template>
 
 <script lang="ts">
 export default {

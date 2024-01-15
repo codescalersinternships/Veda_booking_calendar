@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar :elevation="1" flat :color="'transparent'">
+  <v-app-bar :elevation="1" flat :color="'black'">
     <v-app-bar-title class="w-100">
       <v-row>
         <v-col cols="6">

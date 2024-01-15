@@ -1,8 +1,11 @@
+import { DummyDataProvider } from '@/api/dummy_data';
 import { BoatApiData, ResponseWrapper } from '@/utils/types';
 import { AxiosResponse } from 'axios';
 import http from './axios';
 
 export default class BoatsApiProvider {
+  dev = new DummyDataProvider();
+
   async post(data: BoatApiData): Promise<ResponseWrapper<BoatApiData>> {
     try {
       const response: AxiosResponse<ResponseWrapper<BoatApiData>> = await http.post('/api/boats/', data);

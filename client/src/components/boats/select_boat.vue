@@ -4,7 +4,7 @@ import BoatsApiProvider from '@/api/boats';
 import { BoatApiData, RequestAPIData } from '@/utils/types';
 import { PropType, onMounted, ref } from 'vue';
 
-defineProps({
+const props = defineProps({
   request: {
     type: Object as PropType<RequestAPIData>,
     required: true,
@@ -18,7 +18,11 @@ defineProps({
 const emit = defineEmits(['update:select-boat']);
 
 onMounted(async () => {
-  await loadBoats();
+  if (window.env.isProd) {
+    await loadBoats();
+  } else {
+    await loadDummeyBoats();
+  }
 });
 
 const isLoadingBoats = ref<boolean>();
@@ -26,6 +30,14 @@ const boats = ref<BoatApiData[]>([]);
 
 const isErrorLoadingBoats = ref<boolean>();
 const errorMessage = ref<string>();
+
+const loadDummeyBoats = async () => {
+  isLoadingBoats.value = true;
+  errorMessage.value = undefined;
+  isErrorLoadingBoats.value = false;
+  boats.value = new BoatsApiProvider().dev.boats.all();
+  isLoadingBoats.value = false;
+};
 
 const loadBoats = async () => {
   isLoadingBoats.value = true;

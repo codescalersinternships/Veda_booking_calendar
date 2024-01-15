@@ -1,8 +1,11 @@
+import { DummyDataProvider } from '@/api/dummy_data';
 import { AxiosResponse } from 'axios';
 import { RequestAPIData, RequestDate, ResponseWrapper } from '@/utils/types';
 import http from './axios';
 
 export default class RequestBoatAPIProvider {
+  dev = new DummyDataProvider();
+
   static async put(_request: RequestAPIData): Promise<ResponseWrapper<RequestAPIData>> {
     try {
       const response: AxiosResponse<ResponseWrapper<RequestAPIData>> = await http.put(

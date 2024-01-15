@@ -20,7 +20,7 @@ const corsOptions = {
 
 const main = async (app: Express) => {
   try {
-    await synchronizeAndConnectDatabase();
+    synchronizeAndConnectDatabase();
     app.use(cors(corsOptions));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));

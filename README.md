@@ -83,5 +83,5 @@ Linting can be performed for both the server and client using the following comm
 - Client:
 
     ```bash
-    make buildclient VEDA_SERVER_DOMAIN=<your_server_domain>
+    make buildclient VEDA_SERVER_DOMAIN=<your_server_domain> isProd=false # Your environment can be true or false depending on your choice.
     ```

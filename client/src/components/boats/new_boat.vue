@@ -54,6 +54,7 @@ const submit = async () => {
   }
 
   const response = await boatApiService.post(boat.value);
+
   if (response.isError) {
     isErrorResponse.value = response.isError;
     errorMessage.value = response.message;
