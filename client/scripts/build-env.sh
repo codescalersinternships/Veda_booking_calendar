@@ -3,7 +3,7 @@ set -ex
 configs="
 window.env = {
   VEDA_SERVER_DOMAIN: '$VEDA_SERVER_DOMAIN',
-  isProd: '$isProd',
+  isProd: $isProd,
 };
 "
 # decide the config file path
